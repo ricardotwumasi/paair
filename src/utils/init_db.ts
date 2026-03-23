@@ -73,6 +73,7 @@ export function initDatabase(dbPath: string): Database.Database {
   db.exec(SCHEMA);
 
   log.info('Database initialised', { path: dbPath });
+  _db = db;
   return db;
 }
 

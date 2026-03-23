@@ -3,7 +3,7 @@
 
 # ─── Model Configuration ───
 model:
-  name: "qwen3.5:9b-q5_K_M"
+  name: "qwen3.5:9b"
   endpoint: "http://localhost:11434"
   # Alternative models (uncomment to switch):
   # name: "llama3.3:8b-instruct-q5_K_M"

@@ -135,11 +135,27 @@ function updateEmailAction(emailDbId: number, action: string): void {
 
 // ─── Tool Handlers ───
 
+function stripModelFooter(body: string): string {
+  // Models sometimes include a footer despite being told not to.
+  // Remove anything after a "---" line that mentions "PAAIR" or "AI assistant".
+  const lines = body.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '---' && i + 1 < lines.length) {
+      const rest = lines.slice(i + 1).join('\n').toLowerCase();
+      if (rest.includes('paair') || rest.includes('ai assistant') || rest.includes('locally hosted')) {
+        return lines.slice(0, i).join('\n').trimEnd();
+      }
+    }
+  }
+  return body;
+}
+
 async function handleSendEmail(args: SendEmailArgs, emailDbId: number): Promise<string> {
   const config = getConfig();
   const db = getDb();
   const footer = buildFooter(config);
-  const fullBody = args.body + '\n\n---\n' + footer;
+  const cleanBody = stripModelFooter(args.body);
+  const fullBody = cleanBody + '\n\n---\n' + footer;
 
   try {
     const resendMessageId = await sendEmailViaResend(args, fullBody, config);
@@ -374,7 +390,8 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
       );
 
       const footer = buildFooter(config);
-      const fullBody = response.message.content + '\n\n---\n' + footer;
+      const cleanContent = stripModelFooter(response.message.content);
+      const fullBody = cleanContent + '\n\n---\n' + footer;
       logResponse(emailDbId, fullBody);
       incrementRateLimit(senderAddress);
       updateEmailAction(emailDbId, 'responded');
