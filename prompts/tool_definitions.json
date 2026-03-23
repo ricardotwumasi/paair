@@ -3,28 +3,22 @@
     {
       "type": "function",
       "function": {
-        "name": "check_calendar_availability",
-        "description": "Query Ricardo's Microsoft 365 calendar for free/busy information within a specified date range. Returns only availability status (free/busy/tentative), never event titles or details. Read-only access.",
+        "name": "offer_booking_link",
+        "description": "Provide the correspondent with a booking link to schedule a meeting with Ricardo. Use this only after establishing a valid reason for the meeting. Select the appropriate duration based on the nature of the discussion. Returns a booking URL and meeting context summary.",
         "parameters": {
           "type": "object",
           "properties": {
-            "start_date": {
+            "duration_preference": {
               "type": "string",
-              "format": "date-time",
-              "description": "Start of the date range to check (ISO 8601). Example: 2026-04-16T09:00:00Z"
+              "enum": ["short", "medium", "long"],
+              "description": "Meeting duration: 'short' for a 15-minute phone call, 'medium' for a 25-minute meeting, 'long' for a 50-minute meeting. Choose based on the complexity of the discussion topic."
             },
-            "end_date": {
+            "context": {
               "type": "string",
-              "format": "date-time",
-              "description": "End of the date range to check (ISO 8601). Example: 2026-04-25T17:00:00Z"
-            },
-            "duration_minutes": {
-              "type": "integer",
-              "default": 60,
-              "description": "Desired meeting duration in minutes. Used to filter slots that are long enough."
+              "description": "Brief summary of the meeting purpose and key discussion topics, derived from the email conversation."
             }
           },
-          "required": ["start_date", "end_date"]
+          "required": ["duration_preference", "context"]
         }
       }
     },

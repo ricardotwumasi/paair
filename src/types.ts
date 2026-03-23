@@ -104,12 +104,11 @@ export const ollamaChatResponseSchema = z.object({
 
 // ─── Tool Call Argument Schemas ───
 
-export const checkCalendarArgsSchema = z.object({
-  start_date: z.string(),
-  end_date: z.string(),
-  duration_minutes: z.number().int().positive().default(60),
+export const offerBookingLinkArgsSchema = z.object({
+  duration_preference: z.enum(['short', 'medium', 'long']),
+  context: z.string(),
 });
-export type CheckCalendarArgs = z.infer<typeof checkCalendarArgsSchema>;
+export type OfferBookingLinkArgs = z.infer<typeof offerBookingLinkArgsSchema>;
 
 export const escalateArgsSchema = z.object({
   reason: z.enum([
@@ -179,19 +178,10 @@ export interface EmailConfig {
   resend_api_key: string;
 }
 
-export interface CalendarConfig {
-  provider: string;
-  tenant_id: string;
-  client_id: string;
-  client_secret: string;
-  scopes: string[];
-  default_meeting_duration: number;
-  working_hours: {
-    start: string;
-    end: string;
-    timezone: string;
-  };
-  lookahead_days: number;
+export interface BookingLinksConfig {
+  phone_15min: string;
+  meeting_25min: string;
+  meeting_50min: string;
 }
 
 export interface TelegramConfig {
@@ -240,7 +230,7 @@ export interface LoggingConfig {
 export interface AppConfig {
   model: ModelConfig;
   email: EmailConfig;
-  calendar: CalendarConfig;
+  booking_links: BookingLinksConfig;
   notifications: NotificationsConfig;
   safety: SafetyConfig;
   absence: AbsenceConfig;

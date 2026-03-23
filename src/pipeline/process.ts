@@ -4,8 +4,11 @@ import { getDb } from '../utils/init_db.js';
 import { formatEmailForLLM, extractSenderAddress, extractSenderDomain, extractSenderName } from '../utils/format_email.js';
 import { buildSystemPrompt, buildFooter } from '../utils/build_prompt.js';
 import { chatWithTools, loadToolDefinitions } from '../ollama/client.js';
+import { sendEmailViaResend } from '../tools/send_email.js';
+import { selectBookingLink } from '../tools/calendar.js';
+import { sendTelegramNotification } from '../notifications/telegram.js';
 import {
-  checkCalendarArgsSchema,
+  offerBookingLinkArgsSchema,
   escalateArgsSchema,
   sendEmailArgsSchema,
 } from '../types.js';
@@ -16,7 +19,7 @@ import type {
   OllamaMessage,
   SendEmailArgs,
   EscalateArgs,
-  CheckCalendarArgs,
+  OfferBookingLinkArgs,
 } from '../types.js';
 
 const log = createLogger('pipeline');
@@ -130,33 +133,35 @@ function updateEmailAction(emailDbId: number, action: string): void {
   ).run(action, emailDbId);
 }
 
-// ─── Tool Handlers (Stubbed for Phase 1) ───
+// ─── Tool Handlers ───
 
-function handleSendEmail(args: SendEmailArgs, emailDbId: number): string {
+async function handleSendEmail(args: SendEmailArgs, emailDbId: number): Promise<string> {
   const config = getConfig();
+  const db = getDb();
   const footer = buildFooter(config);
   const fullBody = args.body + '\n\n---\n' + footer;
 
-  logResponse(emailDbId, fullBody);
+  try {
+    const resendMessageId = await sendEmailViaResend(args, fullBody, config);
 
-  log.info('Email response prepared (Phase 1 stub; not actually sent)', {
-    to: args.to,
-    subject: args.subject,
-    bodyLength: fullBody.length,
-  });
+    db.prepare(
+      `INSERT INTO responses (email_id, response_body, resend_message_id, sent_at, created_at)
+       VALUES (?, ?, ?, datetime('now'), datetime('now'))`,
+    ).run(emailDbId, fullBody, resendMessageId);
 
-  return fullBody;
+    return fullBody;
+  } catch (error) {
+    // Log the response even if sending failed (for audit)
+    logResponse(emailDbId, fullBody);
+    throw error;
+  }
 }
 
-function handleEscalation(args: EscalateArgs, emailDbId: number): EscalationRecord {
+async function handleEscalation(args: EscalateArgs, emailDbId: number): Promise<EscalationRecord> {
+  const config = getConfig();
   logEscalation(emailDbId, args);
 
-  log.info('Escalation recorded (Phase 1 stub; no Telegram notification)', {
-    reason: args.reason,
-    urgency: args.urgency,
-  });
-
-  return {
+  const escalation: EscalationRecord = {
     reason: args.reason,
     summary: args.summary,
     urgency: args.urgency,
@@ -164,18 +169,22 @@ function handleEscalation(args: EscalateArgs, emailDbId: number): EscalationReco
     originalMessageId: args.original_message_id,
     timestamp: new Date().toISOString(),
   };
+
+  // Send Telegram notification
+  const notified = await sendTelegramNotification(escalation, config);
+  if (notified) {
+    const db = getDb();
+    db.prepare(
+      `UPDATE escalations SET telegram_notified = 1 WHERE email_id = ?`,
+    ).run(emailDbId);
+  }
+
+  return escalation;
 }
 
-function handleCalendarCheck(_args: CheckCalendarArgs): string {
-  log.info('Calendar check requested (Phase 1 stub; returning mock availability)');
-
-  return JSON.stringify({
-    available_slots: [
-      { start: '2026-04-16T10:00:00Z', end: '2026-04-16T11:00:00Z' },
-      { start: '2026-04-17T14:00:00Z', end: '2026-04-17T15:00:00Z' },
-      { start: '2026-04-18T11:00:00Z', end: '2026-04-18T12:00:00Z' },
-    ],
-  });
+function handleBookingLink(args: OfferBookingLinkArgs): string {
+  const config = getConfig();
+  return selectBookingLink(args, config);
 }
 
 // ─── Core Pipeline ───
@@ -210,7 +219,7 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
     const emailDbId = logEmail(email, senderAddress);
 
     // Auto-escalate rate-limited emails
-    const escalation = handleEscalation(
+    const escalation = await handleEscalation(
       {
         reason: 'rate_limit_exceeded',
         summary: `Rate limit exceeded for ${senderAddress}: ${rateCheck.reason}`,
@@ -309,7 +318,7 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
         try {
           if (name === 'send_email_reply') {
             const validated = sendEmailArgsSchema.parse(args);
-            const responseBody = handleSendEmail(validated, emailDbId);
+            const responseBody = await handleSendEmail(validated, emailDbId);
             incrementRateLimit(senderAddress);
             updateEmailAction(emailDbId, 'responded');
 
@@ -321,7 +330,7 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
             };
           } else if (name === 'escalate_to_ricardo') {
             const validated = escalateArgsSchema.parse(args);
-            const escalation = handleEscalation(validated, emailDbId);
+            const escalation = await handleEscalation(validated, emailDbId);
             updateEmailAction(emailDbId, 'escalated');
 
             finalResult = {
@@ -330,17 +339,17 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
               escalation,
               durationMs: Date.now() - startTime,
             };
-          } else if (name === 'check_calendar_availability') {
-            const validated = checkCalendarArgsSchema.parse(args);
-            const calendarResult = handleCalendarCheck(validated);
+          } else if (name === 'offer_booking_link') {
+            const validated = offerBookingLinkArgsSchema.parse(args);
+            const bookingResult = handleBookingLink(validated);
 
-            // Feed calendar result back into conversation
+            // Feed booking link result back into conversation
             messages.push({
               role: 'tool',
-              content: calendarResult,
+              content: bookingResult,
             });
 
-            // Continue loop; model will generate a follow-up response
+            // Continue loop; model will generate a follow-up response with the link
           } else {
             log.warn('Unknown tool call', { tool: name });
           }

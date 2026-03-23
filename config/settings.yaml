@@ -22,25 +22,13 @@ email:
   # Resend API key (from environment variable)
   resend_api_key: "${RESEND_API_KEY}"
 
-# ─── Calendar Configuration ───
-calendar:
-  provider: "microsoft_graph"
-  # Azure AD app registration
-  tenant_id: "${AZURE_TENANT_ID}"
-  client_id: "${AZURE_CLIENT_ID}"
-  client_secret: "${AZURE_CLIENT_SECRET}"
-  # Scope: read-only free/busy
-  scopes:
-    - "Calendars.Read"
-  # Default meeting duration in minutes
-  default_meeting_duration: 60
-  # Working hours for meeting proposals (UK time)
-  working_hours:
-    start: "09:00"
-    end: "17:00"
-    timezone: "Europe/London"
-  # Days to look ahead when no date specified
-  lookahead_days: 10
+# ─── Booking Links Configuration ───
+# Replaces Microsoft Graph calendar (Azure AD admin consent not available at KCL).
+# PAAIR offers these links once a valid meeting reason is established.
+booking_links:
+  phone_15min: "https://outlook.office.com/bookwithme/user/869635f8326043a3a42b0e9183a65878@kcl.ac.uk/meetingtype/u4R5VachQk6JYFA9Haohtw2?bookingcode=106c3d70-2e09-4657-b42d-b80c42e2f480&anonymous&ismsaljsauthenabled&ep=mLinkFromTile"
+  meeting_25min: "https://outlook.office.com/bookwithme/user/869635f8326043a3a42b0e9183a65878@kcl.ac.uk/meetingtype/oyQQ3Iln4E-7kzcTgSLP0w2?bookingcode=dc507709-5109-40bb-8a56-bc8a52f23fda&anonymous&ismsaljsauthenabled&ep=mLinkFromTile"
+  meeting_50min: "https://outlook.office.com/bookwithme/user/869635f8326043a3a42b0e9183a65878@kcl.ac.uk/meetingtype/eEuG2N0Ij0uFvCOJ0h3fUQ2?bookingcode=35814983-032a-47c9-931f-06b658c09993&anonymous&ismsaljsauthenabled&ep=mLinkFromTile"
 
 # ─── Notification Configuration ───
 notifications:

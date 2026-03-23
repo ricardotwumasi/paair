@@ -88,7 +88,7 @@ export function loadConfig(): AppConfig {
   const config: AppConfig = {
     model: s.model as unknown as AppConfig['model'],
     email: s.email as unknown as AppConfig['email'],
-    calendar: s.calendar as unknown as AppConfig['calendar'],
+    booking_links: s.booking_links as unknown as AppConfig['booking_links'],
     notifications: s.notifications as unknown as AppConfig['notifications'],
     safety: s.safety as unknown as AppConfig['safety'],
     absence: s.absence as unknown as AppConfig['absence'],
