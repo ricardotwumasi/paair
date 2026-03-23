@@ -7,7 +7,7 @@ A locally hosted, privacy-first AI email agent that responds to correspondence d
 ## How It Works
 
 1. Ricardo sets an out-of-office message inviting correspondents to opt in
-2. Those who opt in forward their query to `p.a.a.i.r@melarxe.resend.app` (keeping Ricardo in CC)
+2. Those who opt in forward their query to `assistant@paair.ricardotwumasi.com` (keeping Ricardo in CC)
 3. PAAIR receives the email via Resend webhook, processes it with a local LLM (Qwen3.5 9B via Ollama), and responds
 4. For meeting requests, PAAIR checks Ricardo's calendar (read-only) and proposes available times with a discussion summary
 5. Sensitive matters (student welfare, HR, urgent decisions) are escalated to Ricardo via Telegram with a draft response for approval

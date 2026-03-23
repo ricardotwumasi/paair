@@ -4,7 +4,7 @@ Version 1.0 / March 2026
 
 ## 1. Executive Summary
 
-PAAIR (Personal Assistant Artificial Intelligence for Ricardo) is a locally hosted, privacy-first AI agent designed to manage email correspondence and calendar scheduling during periods of absence. The system operates on an opt-in basis: correspondents are informed via an out-of-office message that they may choose to interact with PAAIR by forwarding relevant email chains to a dedicated address (p.a.a.i.r@melarxe.resend.app), keeping Ricardo in CC at all times.
+PAAIR (Personal Assistant Artificial Intelligence for Ricardo) is a locally hosted, privacy-first AI agent designed to manage email correspondence and calendar scheduling during periods of absence. The system operates on an opt-in basis: correspondents are informed via an out-of-office message that they may choose to interact with PAAIR by forwarding relevant email chains to a dedicated address (assistant@paair.ricardotwumasi.com), keeping Ricardo in CC at all times.
 
 The core design philosophy prioritises data sovereignty, transparency, and minimal attack surface. PAAIR runs entirely on local hardware, processes only email context explicitly shared with it by correspondents, and maintains no persistent memory of conversations beyond the immediate exchange.
 
@@ -61,16 +61,16 @@ The Ollama API exposes endpoints at localhost:11434. The key endpoints for PAAIR
 
 | Component | Technology | Role | Runs Locally? |
 |-----------|-----------|------|---------------|
-| Email Ingestion | Resend Inbound Webhooks | Receives emails sent to p.a.a.i.r@melarxe.resend.app | Partially (webhook endpoint local, Resend servers receive mail) |
+| Email Ingestion | Resend Inbound Webhooks | Receives emails sent to assistant@paair.ricardotwumasi.com | Partially (webhook endpoint local, Resend servers receive mail) |
 | Workflow Orchestration | n8n (self-hosted, Docker) | Routes inbound email to LLM, handles retry logic, rate limiting, and response dispatch | Yes |
 | LLM Inference | Ollama + MLX (Qwen3.5 9B) | Generates email responses, determines calendar query intent, formats replies | Yes |
 | Calendar Access | Microsoft Graph API | Read-only free/busy queries against Ricardo's Outlook calendar | API calls only |
-| Email Dispatch | Resend Send API | Sends PAAIR's responses from p.a.a.i.r@melarxe.resend.app with Ricardo in CC | API call only |
+| Email Dispatch | Resend Send API | Sends PAAIR's responses from assistant@paair.ricardotwumasi.com with Ricardo in CC | API call only |
 | Notifications | Telegram Bot API | Sends escalation alerts and handles draft approval via inline keyboards | API call only |
 
 ### 5.2 Data Flow
 
-The end-to-end data flow proceeds as follows. A correspondent receives Ricardo's out-of-office message and opts in by forwarding their query to p.a.a.i.r@melarxe.resend.app with Ricardo in CC. Resend receives the inbound email and fires a webhook (HTTP POST) to the n8n instance running on Ricardo's machine, delivered via a secure tunnel (Cloudflare Tunnel or ngrok). The webhook payload contains metadata; n8n then calls the Resend Received Emails API to retrieve the full email body, headers, and any attachments.
+The end-to-end data flow proceeds as follows. A correspondent receives Ricardo's out-of-office message and opts in by forwarding their query to assistant@paair.ricardotwumasi.com with Ricardo in CC. Resend receives the inbound email and fires a webhook (HTTP POST) to the n8n instance running on Ricardo's machine, delivered via a secure tunnel (Cloudflare Tunnel or ngrok). The webhook payload contains metadata; n8n then calls the Resend Received Emails API to retrieve the full email body, headers, and any attachments.
 
 n8n passes the email content to Ollama's /api/chat endpoint with the system prompt that defines PAAIR's persona, constraints, and available tools. The model processes the query and either generates a direct response or emits a tool call (e.g., to check calendar availability or to escalate). If a tool call is emitted, n8n executes the corresponding action (querying Microsoft Graph for free/busy data, or logging an escalation and sending a Telegram notification) and feeds the result back to the model for a second inference pass.
 
@@ -84,7 +84,7 @@ Since the MacBook is behind a home or institutional network, the n8n webhook end
 
 ### 6.1 Email: Resend
 
-Resend serves as both the inbound and outbound email provider. The address p.a.a.i.r@melarxe.resend.app receives mail, and Resend fires a webhook containing metadata (sender, subject, timestamp) to n8n. The webhook payload does not include the full email body or attachments; these must be retrieved via separate API calls to the Received Emails API and Attachments API respectively.
+Resend serves as both the inbound and outbound email provider. The address assistant@paair.ricardotwumasi.com receives mail, and Resend fires a webhook containing metadata (sender, subject, timestamp) to n8n. The webhook payload does not include the full email body or attachments; these must be retrieved via separate API calls to the Received Emails API and Attachments API respectively.
 
 An alternative worth noting is Postmark, which includes the full email payload inline in the webhook POST, eliminating follow-up API calls.
 
@@ -124,7 +124,7 @@ Several existing open-source projects inform PAAIR's design. All code in PAAIR i
 
 ### Phase 1: Foundation (Weeks 1-2)
 
-Install Ollama and download Qwen3.5 9B (Q5_K_M). Set up n8n via Docker. Configure Resend for p.a.a.i.r@melarxe.resend.app. Establish Cloudflare Tunnel. Build the initial n8n workflow: webhook trigger, email fetch, Ollama inference, Resend reply.
+Install Ollama and download Qwen3.5 9B (Q5_K_M). Set up n8n via Docker. Configure Resend for assistant@paair.ricardotwumasi.com. Establish Cloudflare Tunnel. Build the initial n8n workflow: webhook trigger, email fetch, Ollama inference, Resend reply.
 
 **Deliverable:** PAAIR can receive an email, generate a response, and send it back.
 
@@ -154,7 +154,7 @@ Candidate features: tentative calendar event creation, multi-turn conversation h
 
 > Thank you for your email. I will be away until 15th April 2026.
 >
-> If you would like a response before my return, you may opt in to PAAIR (Personal Assistant Artificial Intelligence for Ricardo) by forwarding this email chain, or any context you consider relevant, to p.a.a.i.r@melarxe.resend.app and keeping me in CC. PAAIR can respond to general queries about my research, provide information I have previously shared publicly, and check my calendar availability for scheduling meetings upon my return.
+> If you would like a response before my return, you may opt in to PAAIR (Personal Assistant Artificial Intelligence for Ricardo) by forwarding this email chain, or any context you consider relevant, to assistant@paair.ricardotwumasi.com and keeping me in CC. PAAIR can respond to general queries about my research, provide information I have previously shared publicly, and check my calendar availability for scheduling meetings upon my return.
 >
 > PAAIR is a locally hosted AI assistant running Qwen3.5 (9B parameters) on my personal machine. It processes only the email content you explicitly share with it and does not retain conversation history. All responses are AI-generated and clearly marked as such.
 >

@@ -19,7 +19,7 @@ const config = getConfig();
 const TEST_EMAILS: Record<string, InboundEmail> = {
   research: {
     from: 'Dr Sarah Chen <s.chen@oxford.ac.uk>',
-    to: 'p.a.a.i.r@melarxe.resend.app',
+    to: 'assistant@paair.ricardotwumasi.com',
     subject: 'Follow-up on your psychosis employment paper',
     text: 'Hi Ricardo, I read your paper on employment outcomes in first-episode psychosis with great interest. Could you point me to any follow-up publications or related datasets? I am exploring a similar question in our Oxford cohort.',
     messageId: '<test-prompt-001@oxford.ac.uk>',
@@ -27,7 +27,7 @@ const TEST_EMAILS: Record<string, InboundEmail> = {
   },
   meeting: {
     from: 'Prof James Wright <j.wright@ucl.ac.uk>',
-    to: 'p.a.a.i.r@melarxe.resend.app',
+    to: 'assistant@paair.ricardotwumasi.com',
     subject: 'Catch up re: UKRI application',
     text: 'Hi Ricardo, would you have time for a call to discuss the UKRI grant application? I have some thoughts on the methodology section and would like to align before the deadline.',
     messageId: '<test-prompt-002@ucl.ac.uk>',
@@ -35,7 +35,7 @@ const TEST_EMAILS: Record<string, InboundEmail> = {
   },
   welfare: {
     from: 'Alex Thompson <alex.thompson@kcl.ac.uk>',
-    to: 'p.a.a.i.r@melarxe.resend.app',
+    to: 'assistant@paair.ricardotwumasi.com',
     subject: 'Need to talk',
     text: 'Hi Ricardo, I am one of your PhD students. I have been struggling quite a lot recently and I am not sure I can continue with the programme. Could we talk?',
     messageId: '<test-prompt-003@kcl.ac.uk>',
@@ -55,7 +55,7 @@ if (scenario === 'custom') {
   }
   email = {
     from: 'Test User <test@example.ac.uk>',
-    to: 'p.a.a.i.r@melarxe.resend.app',
+    to: 'assistant@paair.ricardotwumasi.com',
     subject: 'Test email',
     text: customText,
     messageId: '<test-custom@example.ac.uk>',

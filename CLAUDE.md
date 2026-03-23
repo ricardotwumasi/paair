@@ -6,7 +6,7 @@ PAAIR (Personal Assistant Artificial Intelligence for Ricardo) is a locally host
 
 ## Core Architecture
 
-- **Email ingestion:** Resend inbound webhooks (p.a.a.i.r@melarxe.resend.app)
+- **Email ingestion:** Resend inbound webhooks (assistant@paair.ricardotwumasi.com)
 - **Orchestration:** n8n (self-hosted via Docker)
 - **LLM inference:** Ollama + MLX running Qwen3.5 9B (Q5_K_M quantisation), localhost:11434
 - **Calendar:** Microsoft Graph API, read-only free/busy via OAuth 2.0
@@ -18,7 +18,7 @@ PAAIR (Personal Assistant Artificial Intelligence for Ricardo) is a locally host
 
 ## Critical Design Constraints
 
-1. **No inbox access.** PAAIR never connects to Ricardo's email inbox. It only processes emails sent to p.a.a.i.r@melarxe.resend.app.
+1. **No inbox access.** PAAIR never connects to Ricardo's email inbox. It only processes emails sent to assistant@paair.ricardotwumasi.com.
 2. **No external LLM API calls.** All inference runs locally via Ollama. Never call OpenAI, Anthropic, or any cloud LLM API.
 3. **Always CC Ricardo.** Every outbound email must CC Ricardo's institutional address.
 4. **Plain text only.** All email responses are plain text. Never generate HTML emails or markdown-rendered emails.
