@@ -239,3 +239,43 @@ export interface AppConfig {
   trustedDomains: string[];
   blockedDomains: string[];
 }
+
+// ─── Telegram API Types ───
+
+export interface TelegramUpdate {
+  update_id: number;
+  callback_query?: {
+    id: string;
+    from: { id: number };
+    message?: { message_id: number; chat: { id: number }; text?: string };
+    data?: string;
+  };
+  message?: {
+    message_id: number;
+    from: { id: number };
+    chat: { id: number };
+    text?: string;
+    reply_to_message?: { message_id: number };
+  };
+}
+
+export interface TelegramSendResult {
+  ok: boolean;
+  result?: { message_id: number };
+  description?: string;
+}
+
+export interface TelegramNotificationResult {
+  success: boolean;
+  telegramMessageId?: number;
+}
+
+// ─── Digest Types ───
+
+export interface DigestResult {
+  totalEmails: number;
+  responded: number;
+  escalated: number;
+  pendingEscalations: number;
+  telegramSent: boolean;
+}

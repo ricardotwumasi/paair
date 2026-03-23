@@ -118,12 +118,13 @@ function logResponse(emailDbId: number, responseBody: string): void {
   ).run(emailDbId, responseBody);
 }
 
-function logEscalation(emailDbId: number, args: EscalateArgs): void {
+function logEscalation(emailDbId: number, args: EscalateArgs): number {
   const db = getDb();
-  db.prepare(
+  const result = db.prepare(
     `INSERT INTO escalations (email_id, reason, summary, urgency, draft_response)
      VALUES (?, ?, ?, ?, ?)`,
   ).run(emailDbId, args.reason, args.summary, args.urgency, args.draft_response ?? null);
+  return Number(result.lastInsertRowid);
 }
 
 function updateEmailAction(emailDbId: number, action: string): void {
@@ -175,7 +176,7 @@ async function handleSendEmail(args: SendEmailArgs, emailDbId: number): Promise<
 
 async function handleEscalation(args: EscalateArgs, emailDbId: number): Promise<EscalationRecord> {
   const config = getConfig();
-  logEscalation(emailDbId, args);
+  const escalationDbId = logEscalation(emailDbId, args);
 
   const escalation: EscalationRecord = {
     reason: args.reason,
@@ -186,13 +187,13 @@ async function handleEscalation(args: EscalateArgs, emailDbId: number): Promise<
     timestamp: new Date().toISOString(),
   };
 
-  // Send Telegram notification
-  const notified = await sendTelegramNotification(escalation, config);
-  if (notified) {
+  // Send Telegram notification with approval buttons
+  const result = await sendTelegramNotification(escalation, escalationDbId, config);
+  if (result.success) {
     const db = getDb();
     db.prepare(
-      `UPDATE escalations SET telegram_notified = 1 WHERE email_id = ?`,
-    ).run(emailDbId);
+      `UPDATE escalations SET telegram_notified = 1, telegram_message_id = ? WHERE id = ?`,
+    ).run(result.telegramMessageId ?? null, escalationDbId);
   }
 
   return escalation;
@@ -216,6 +217,30 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
     subject: email.subject,
     messageId: email.messageId,
   });
+
+  // Check if system is paused
+  const db = getDb();
+  const systemState = db.prepare('SELECT paused FROM system_state WHERE id = 1').get() as { paused: number } | undefined;
+  if (systemState?.paused) {
+    log.info('System paused; force-escalating email');
+    const emailDbId = logEmail(email, senderAddress);
+    const escalation = await handleEscalation(
+      {
+        reason: 'uncertainty',
+        summary: `System paused. Email held for manual review. From: ${senderAddress}, Subject: ${email.subject}`,
+        urgency: 'same_day',
+        original_message_id: email.messageId,
+      },
+      emailDbId,
+    );
+    updateEmailAction(emailDbId, 'escalated');
+    return {
+      action: 'escalated',
+      emailId: email.messageId,
+      escalation,
+      durationMs: Date.now() - startTime,
+    };
+  }
 
   // Check blocked domains
   if (config.blockedDomains.includes(senderDomain)) {

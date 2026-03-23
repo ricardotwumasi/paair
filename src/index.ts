@@ -4,6 +4,8 @@ import { createLogger } from './logger.js';
 import { initDatabase } from './utils/init_db.js';
 import { inboundEmailSchema } from './types.js';
 import { processEmail } from './pipeline/process.js';
+import { startTelegramBot } from './notifications/telegram_bot.js';
+import { generateAndSendDigest } from './notifications/digest.js';
 
 const log = createLogger('server');
 const PORT = Number(process.env.PAAIR_PORT) || 3100;
@@ -84,6 +86,19 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
     return;
   }
 
+  if (method === 'POST' && url === '/webhook/paair-digest') {
+    try {
+      const config = getConfig();
+      const result = await generateAndSendDigest(config);
+      sendJson(res, 200, result);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      log.error('Digest error', { error: errorMsg });
+      sendJson(res, 500, { error: 'Digest failed', message: errorMsg });
+    }
+    return;
+  }
+
   sendJson(res, 404, { error: 'Not found' });
 }
 
@@ -107,6 +122,9 @@ function start(): void {
       model: config.model.name,
       returnDate: config.absence.return_date,
     });
+
+    // Start Telegram bot polling in the background
+    startTelegramBot(config);
   });
 }
 

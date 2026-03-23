@@ -1,15 +1,15 @@
 import { createLogger } from '../logger.js';
-import type { EscalationRecord, AppConfig } from '../types.js';
+import type { EscalationRecord, AppConfig, TelegramSendResult, TelegramNotificationResult } from '../types.js';
 
 const log = createLogger('telegram');
 
-const URGENCY_BADGE: Record<string, string> = {
+export const URGENCY_BADGE: Record<string, string> = {
   immediate: '🚨 IMMEDIATE',
   same_day: '📋 Same Day',
   on_return: '📌 On Return',
 };
 
-const REASON_LABEL: Record<string, string> = {
+export const REASON_LABEL: Record<string, string> = {
   student_welfare: 'Student Welfare',
   confidential: 'Confidential Matter',
   high_importance: 'High Importance',
@@ -18,7 +18,7 @@ const REASON_LABEL: Record<string, string> = {
   rate_limit_exceeded: 'Rate Limit Exceeded',
 };
 
-function formatTelegramMessage(escalation: EscalationRecord): string {
+export function formatTelegramMessage(escalation: EscalationRecord): string {
   const badge = URGENCY_BADGE[escalation.urgency] || escalation.urgency;
   const reason = REASON_LABEL[escalation.reason] || escalation.reason;
 
@@ -28,7 +28,6 @@ function formatTelegramMessage(escalation: EscalationRecord): string {
   message += `Summary:\n${escalation.summary}\n`;
 
   if (escalation.draftResponse) {
-    // Truncate draft if too long for Telegram (4096 char limit)
     const maxDraftLength = 2000;
     let draft = escalation.draftResponse;
     if (draft.length > maxDraftLength) {
@@ -37,7 +36,6 @@ function formatTelegramMessage(escalation: EscalationRecord): string {
     message += `\nDraft response:\n${draft}`;
   }
 
-  // Telegram message limit is 4096 characters
   if (message.length > 4096) {
     message = message.slice(0, 4090) + '\n[...]';
   }
@@ -46,54 +44,102 @@ function formatTelegramMessage(escalation: EscalationRecord): string {
 }
 
 /**
- * Send an escalation notification to Ricardo via the Telegram Bot API.
- * Sends all urgency levels immediately (digest batching deferred to Phase 3).
+ * Send a plain text message to Ricardo via Telegram.
+ */
+export async function sendTelegramMessage(
+  text: string,
+  config: AppConfig,
+  replyMarkup?: unknown,
+): Promise<TelegramSendResult> {
+  const { bot_token, chat_id } = config.notifications.telegram;
+  const url = `https://api.telegram.org/bot${bot_token}/sendMessage`;
+
+  const body: Record<string, unknown> = {
+    chat_id,
+    text,
+  };
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  return (await response.json()) as TelegramSendResult;
+}
+
+/**
+ * Answer a Telegram callback query (removes the "loading" spinner on buttons).
+ */
+export async function answerCallbackQuery(
+  callbackQueryId: string,
+  text: string,
+  config: AppConfig,
+): Promise<void> {
+  const url = `https://api.telegram.org/bot${config.notifications.telegram.bot_token}/answerCallbackQuery`;
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ callback_query_id: callbackQueryId, text }),
+  });
+}
+
+/**
+ * Send an escalation notification with inline approval buttons.
+ * Returns the Telegram message ID for tracking.
  */
 export async function sendTelegramNotification(
   escalation: EscalationRecord,
+  escalationDbId: number,
   config: AppConfig,
-): Promise<boolean> {
-  const { bot_token, chat_id, enabled } = config.notifications.telegram;
+): Promise<TelegramNotificationResult> {
+  const { enabled, bot_token, chat_id } = config.notifications.telegram;
 
   if (!enabled) {
     log.info('Telegram notifications disabled; skipping');
-    return false;
+    return { success: false };
   }
 
   if (!bot_token || !chat_id) {
     log.warn('Telegram bot_token or chat_id not configured; skipping notification');
-    return false;
+    return { success: false };
   }
 
   const message = formatTelegramMessage(escalation);
-  const url = `https://api.telegram.org/bot${bot_token}/sendMessage`;
+
+  const inlineKeyboard = {
+    inline_keyboard: [
+      [
+        { text: 'Approve', callback_data: `approve:${escalationDbId}` },
+        { text: 'Edit', callback_data: `edit:${escalationDbId}` },
+        { text: 'Discard', callback_data: `discard:${escalationDbId}` },
+      ],
+    ],
+  };
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chat_id,
-        text: message,
-        parse_mode: undefined, // Plain text; MarkdownV2 escaping is fragile
-      }),
-    });
-
-    const data = await response.json() as { ok: boolean; description?: string };
+    const data = await sendTelegramMessage(message, config, inlineKeyboard);
 
     if (!data.ok) {
       log.error('Telegram API error', { description: data.description });
-      return false;
+      return { success: false };
     }
 
-    log.info('Telegram notification sent', {
+    const telegramMessageId = data.result?.message_id;
+
+    log.info('Telegram notification sent with approval buttons', {
       urgency: escalation.urgency,
       reason: escalation.reason,
+      telegramMessageId,
     });
-    return true;
+
+    return { success: true, telegramMessageId };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     log.error('Telegram send failed', { error: errorMsg });
-    return false;
+    return { success: false };
   }
 }

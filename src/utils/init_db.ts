@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { createLogger } from '../logger.js';
+import { runMigrations } from './migrate_db.js';
 
 const log = createLogger('database');
 
@@ -71,6 +72,7 @@ export function initDatabase(dbPath: string): Database.Database {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(SCHEMA);
+  runMigrations(db);
 
   log.info('Database initialised', { path: dbPath });
   _db = db;
