@@ -1,0 +1,96 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "check_calendar_availability",
+        "description": "Query Ricardo's Microsoft 365 calendar for free/busy information within a specified date range. Returns only availability status (free/busy/tentative), never event titles or details. Read-only access.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Start of the date range to check (ISO 8601). Example: 2026-04-16T09:00:00Z"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date-time",
+              "description": "End of the date range to check (ISO 8601). Example: 2026-04-25T17:00:00Z"
+            },
+            "duration_minutes": {
+              "type": "integer",
+              "default": 60,
+              "description": "Desired meeting duration in minutes. Used to filter slots that are long enough."
+            }
+          },
+          "required": ["start_date", "end_date"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "escalate_to_ricardo",
+        "description": "Flag a message for Ricardo's personal attention. Sends a Telegram notification to Ricardo with inline approval buttons and holds any draft response for his review. Use this for student welfare matters, confidential content, high-importance decisions, emotional distress, or any query where you are not confident in the accuracy of your response.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "enum": ["student_welfare", "confidential", "high_importance", "uncertainty", "emotional_distress", "rate_limit_exceeded"],
+              "description": "Category of escalation. Determines notification priority and routing."
+            },
+            "summary": {
+              "type": "string",
+              "description": "Brief (2-3 sentence) summary of the message content and why it requires Ricardo's attention."
+            },
+            "urgency": {
+              "type": "string",
+              "enum": ["immediate", "same_day", "on_return"],
+              "description": "How quickly Ricardo needs to see this. 'immediate' sends a push notification now. 'same_day' queues for the daily digest. 'on_return' adds to the return briefing."
+            },
+            "draft_response": {
+              "type": "string",
+              "description": "Your proposed response for Ricardo to review, edit, and approve before sending. Optional but strongly recommended."
+            },
+            "original_message_id": {
+              "type": "string",
+              "description": "The Message-ID header of the inbound email, for threading and reference."
+            }
+          },
+          "required": ["reason", "summary", "urgency", "original_message_id"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "send_email_reply",
+        "description": "Send a response email via the Resend API. Ricardo is always included in CC automatically. The AI-generated footer is appended automatically by the orchestration layer; do not include it in the body.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "type": "string",
+              "description": "Recipient email address (the original sender)."
+            },
+            "subject": {
+              "type": "string",
+              "description": "Email subject line. Typically 'Re: [original subject]'."
+            },
+            "body": {
+              "type": "string",
+              "description": "The email body as plain text. Use line breaks for paragraph separation. Do not include the PAAIR footer; it is appended automatically."
+            },
+            "in_reply_to": {
+              "type": "string",
+              "description": "The Message-ID of the email being replied to, for correct threading."
+            }
+          },
+          "required": ["to", "subject", "body", "in_reply_to"]
+        }
+      }
+    }
+  ]
+}

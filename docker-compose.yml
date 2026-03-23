@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  # ─── n8n Workflow Engine ───
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: paair-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - WEBHOOK_URL=${WEBHOOK_EXTERNAL_URL}
+      - GENERIC_TIMEZONE=Europe/London
+      - TZ=Europe/London
+      # Pass through PAAIR env vars for use in Code nodes
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RICARDO_EMAIL=${RICARDO_EMAIL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/home/node/workflows:ro
+      - ./prompts:/home/node/prompts:ro
+      - ./config:/home/node/config:ro
+    # Allow n8n to reach Ollama on the host machine
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ─── Cron Scheduler ───
+  # Triggers scheduled tasks (daily digest, return briefing)
+  cron:
+    image: alpine:3.19
+    container_name: paair-cron
+    restart: unless-stopped
+    depends_on:
+      n8n:
+        condition: service_healthy
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+    # Cron jobs:
+    #   - Daily digest at 18:00 UK time
+    #   - Health check every 15 minutes
+    command: >
+      sh -c '
+        echo "0 18 * * * wget -qO- --header=\"Authorization: Bearer $${WEBHOOK_SECRET}\" http://n8n:5678/webhook/paair-digest >/dev/null 2>&1" > /etc/crontabs/root &&
+        echo "*/15 * * * * wget -qO- http://n8n:5678/healthz >/dev/null 2>&1" >> /etc/crontabs/root &&
+        crond -f -l 2
+      '
+
+volumes:
+  n8n_data:
+    driver: local

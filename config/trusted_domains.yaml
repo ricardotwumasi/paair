@@ -1,0 +1,36 @@
+# PAAIR Trusted Domain Allowlist
+#
+# Emails from these domains are processed automatically.
+# Emails from unlisted domains are processed but flagged in logs
+# (when domain_mode is "warn") or held for review (when domain_mode is "allow").
+#
+# Add your institution's domain and known collaborator domains below.
+
+trusted_domains:
+  # Ricardo's institution (REPLACE with actual domain)
+  - "example.ac.uk"
+
+  # Common UK university domains (uncomment as needed)
+  # - "ucl.ac.uk"
+  # - "kcl.ac.uk"
+  # - "ox.ac.uk"
+  # - "cam.ac.uk"
+  # - "ed.ac.uk"
+  # - "manchester.ac.uk"
+  # - "bristol.ac.uk"
+  # - "nhs.net"
+  # - "nhs.uk"
+
+  # Research funders
+  # - "nihr.ac.uk"
+  # - "ukri.org"
+  # - "wellcome.org"
+
+  # Collaborator institutions (add as needed)
+  # - "example.edu"
+
+# Domains that are always blocked (spam, known bad actors)
+blocked_domains:
+  - "tempmail.com"
+  - "guerrillamail.com"
+  - "throwaway.email"

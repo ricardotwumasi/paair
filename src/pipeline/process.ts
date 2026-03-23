@@ -1,0 +1,409 @@
+import { getConfig } from '../config.js';
+import { createLogger } from '../logger.js';
+import { getDb } from '../utils/init_db.js';
+import { formatEmailForLLM, extractSenderAddress, extractSenderDomain, extractSenderName } from '../utils/format_email.js';
+import { buildSystemPrompt, buildFooter } from '../utils/build_prompt.js';
+import { chatWithTools, loadToolDefinitions } from '../ollama/client.js';
+import {
+  checkCalendarArgsSchema,
+  escalateArgsSchema,
+  sendEmailArgsSchema,
+} from '../types.js';
+import type {
+  InboundEmail,
+  ProcessingResult,
+  EscalationRecord,
+  OllamaMessage,
+  SendEmailArgs,
+  EscalateArgs,
+  CheckCalendarArgs,
+} from '../types.js';
+
+const log = createLogger('pipeline');
+const MAX_TOOL_ITERATIONS = 3;
+
+// ─── Rate Limiting ───
+
+function checkRateLimits(senderAddress: string): { allowed: boolean; reason?: string } {
+  const config = getConfig();
+  const db = getDb();
+  const today = new Date().toISOString().split('T')[0];
+
+  // Global daily limit
+  const globalCount = db
+    .prepare('SELECT COALESCE(SUM(count), 0) as total FROM rate_limits WHERE date = ?')
+    .get(today) as { total: number };
+
+  if (globalCount.total >= config.safety.max_responses_per_day) {
+    return { allowed: false, reason: `Global daily limit reached (${config.safety.max_responses_per_day})` };
+  }
+
+  // Per-sender daily limit
+  const senderCount = db
+    .prepare('SELECT COALESCE(count, 0) as count FROM rate_limits WHERE sender_address = ? AND date = ?')
+    .get(senderAddress, today) as { count: number } | undefined;
+
+  if (senderCount && senderCount.count >= config.safety.max_per_sender_per_day) {
+    return { allowed: false, reason: `Per-sender daily limit reached (${config.safety.max_per_sender_per_day})` };
+  }
+
+  return { allowed: true };
+}
+
+function incrementRateLimit(senderAddress: string): void {
+  const db = getDb();
+  const today = new Date().toISOString().split('T')[0];
+
+  db.prepare(
+    `INSERT INTO rate_limits (sender_address, date, count)
+     VALUES (?, ?, 1)
+     ON CONFLICT(sender_address, date) DO UPDATE SET count = count + 1`,
+  ).run(senderAddress, today);
+}
+
+// ─── Database Logging ───
+
+function logEmail(email: InboundEmail, senderAddress: string): number {
+  const config = getConfig();
+  const db = getDb();
+
+  const result = db
+    .prepare(
+      `INSERT INTO emails (message_id, from_address, to_address, subject, received_at, body_logged, body_text)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      email.messageId,
+      senderAddress,
+      email.to,
+      email.subject,
+      email.date,
+      config.logging.log_email_bodies ? 1 : 0,
+      config.logging.log_email_bodies ? email.text : null,
+    );
+
+  return Number(result.lastInsertRowid);
+}
+
+function logLlmAudit(
+  emailDbId: number,
+  requestMessages: OllamaMessage[],
+  responseContent: string,
+  toolCalls: string | null,
+  model: string,
+  durationMs: number,
+): void {
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO llm_audit (email_id, request_messages, response_content, tool_calls, model, duration_ms)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+  ).run(
+    emailDbId,
+    JSON.stringify(requestMessages),
+    responseContent,
+    toolCalls,
+    model,
+    durationMs,
+  );
+}
+
+function logResponse(emailDbId: number, responseBody: string): void {
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO responses (email_id, response_body, created_at)
+     VALUES (?, ?, datetime('now'))`,
+  ).run(emailDbId, responseBody);
+}
+
+function logEscalation(emailDbId: number, args: EscalateArgs): void {
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO escalations (email_id, reason, summary, urgency, draft_response)
+     VALUES (?, ?, ?, ?, ?)`,
+  ).run(emailDbId, args.reason, args.summary, args.urgency, args.draft_response ?? null);
+}
+
+function updateEmailAction(emailDbId: number, action: string): void {
+  const db = getDb();
+  db.prepare(
+    `UPDATE emails SET action = ?, processed_at = datetime('now') WHERE id = ?`,
+  ).run(action, emailDbId);
+}
+
+// ─── Tool Handlers (Stubbed for Phase 1) ───
+
+function handleSendEmail(args: SendEmailArgs, emailDbId: number): string {
+  const config = getConfig();
+  const footer = buildFooter(config);
+  const fullBody = args.body + '\n\n---\n' + footer;
+
+  logResponse(emailDbId, fullBody);
+
+  log.info('Email response prepared (Phase 1 stub; not actually sent)', {
+    to: args.to,
+    subject: args.subject,
+    bodyLength: fullBody.length,
+  });
+
+  return fullBody;
+}
+
+function handleEscalation(args: EscalateArgs, emailDbId: number): EscalationRecord {
+  logEscalation(emailDbId, args);
+
+  log.info('Escalation recorded (Phase 1 stub; no Telegram notification)', {
+    reason: args.reason,
+    urgency: args.urgency,
+  });
+
+  return {
+    reason: args.reason,
+    summary: args.summary,
+    urgency: args.urgency,
+    draftResponse: args.draft_response,
+    originalMessageId: args.original_message_id,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function handleCalendarCheck(_args: CheckCalendarArgs): string {
+  log.info('Calendar check requested (Phase 1 stub; returning mock availability)');
+
+  return JSON.stringify({
+    available_slots: [
+      { start: '2026-04-16T10:00:00Z', end: '2026-04-16T11:00:00Z' },
+      { start: '2026-04-17T14:00:00Z', end: '2026-04-17T15:00:00Z' },
+      { start: '2026-04-18T11:00:00Z', end: '2026-04-18T12:00:00Z' },
+    ],
+  });
+}
+
+// ─── Core Pipeline ───
+
+export async function processEmail(email: InboundEmail): Promise<ProcessingResult> {
+  const startTime = Date.now();
+  const config = getConfig();
+  const senderAddress = extractSenderAddress(email.from);
+  const senderDomain = extractSenderDomain(email.from);
+
+  log.info('Processing email', {
+    from: senderAddress,
+    subject: email.subject,
+    messageId: email.messageId,
+  });
+
+  // Check blocked domains
+  if (config.blockedDomains.includes(senderDomain)) {
+    log.warn('Email from blocked domain', { domain: senderDomain });
+    return {
+      action: 'blocked',
+      emailId: email.messageId,
+      durationMs: Date.now() - startTime,
+    };
+  }
+
+  // Check rate limits
+  const rateCheck = checkRateLimits(senderAddress);
+  if (!rateCheck.allowed) {
+    log.warn('Rate limit exceeded', { sender: senderAddress, reason: rateCheck.reason });
+
+    const emailDbId = logEmail(email, senderAddress);
+
+    // Auto-escalate rate-limited emails
+    const escalation = handleEscalation(
+      {
+        reason: 'rate_limit_exceeded',
+        summary: `Rate limit exceeded for ${senderAddress}: ${rateCheck.reason}`,
+        urgency: 'same_day',
+        original_message_id: email.messageId,
+      },
+      emailDbId,
+    );
+
+    updateEmailAction(emailDbId, 'rate_limited');
+
+    return {
+      action: 'rate_limited',
+      emailId: email.messageId,
+      escalation,
+      durationMs: Date.now() - startTime,
+    };
+  }
+
+  // Log email to database
+  const emailDbId = logEmail(email, senderAddress);
+
+  // Domain trust warning
+  if (
+    config.safety.domain_mode === 'warn' &&
+    !config.trustedDomains.includes(senderDomain)
+  ) {
+    log.warn('Email from untrusted domain (processing in warn mode)', {
+      domain: senderDomain,
+    });
+  }
+
+  // Build messages for Ollama
+  const systemPrompt = buildSystemPrompt(config);
+  const emailContext = formatEmailForLLM(email);
+  const senderName = extractSenderName(email.from);
+
+  // Inject per-email context variables into a user-facing preamble
+  const userMessage =
+    `The following email has been received. The sender is ${senderName} (${senderAddress}). ` +
+    `Today's date is ${new Date().toISOString().split('T')[0]}.\n\n` +
+    emailContext;
+
+  const messages: OllamaMessage[] = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage },
+  ];
+
+  const tools = loadToolDefinitions();
+
+  // Tool-calling loop (max iterations to prevent infinite loops)
+  let iteration = 0;
+  let finalResult: ProcessingResult | null = null;
+
+  while (iteration < MAX_TOOL_ITERATIONS && !finalResult) {
+    iteration++;
+
+    const llmStartTime = Date.now();
+    let response;
+
+    try {
+      response = await chatWithTools(messages, tools);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      log.error('Ollama request failed', { error: errorMsg, iteration });
+      updateEmailAction(emailDbId, 'error');
+      return {
+        action: 'error',
+        emailId: email.messageId,
+        error: errorMsg,
+        durationMs: Date.now() - startTime,
+      };
+    }
+
+    const llmDurationMs = Date.now() - llmStartTime;
+
+    // Log LLM audit
+    logLlmAudit(
+      emailDbId,
+      messages,
+      response.message.content,
+      response.message.tool_calls ? JSON.stringify(response.message.tool_calls) : null,
+      config.model.name,
+      llmDurationMs,
+    );
+
+    // Process tool calls
+    if (response.message.tool_calls && response.message.tool_calls.length > 0) {
+      // Add assistant message with tool calls to conversation
+      messages.push(response.message);
+
+      for (const toolCall of response.message.tool_calls) {
+        const { name, arguments: args } = toolCall.function;
+        log.info('Tool call received', { tool: name, iteration });
+
+        try {
+          if (name === 'send_email_reply') {
+            const validated = sendEmailArgsSchema.parse(args);
+            const responseBody = handleSendEmail(validated, emailDbId);
+            incrementRateLimit(senderAddress);
+            updateEmailAction(emailDbId, 'responded');
+
+            finalResult = {
+              action: 'responded',
+              emailId: email.messageId,
+              responseBody,
+              durationMs: Date.now() - startTime,
+            };
+          } else if (name === 'escalate_to_ricardo') {
+            const validated = escalateArgsSchema.parse(args);
+            const escalation = handleEscalation(validated, emailDbId);
+            updateEmailAction(emailDbId, 'escalated');
+
+            finalResult = {
+              action: 'escalated',
+              emailId: email.messageId,
+              escalation,
+              durationMs: Date.now() - startTime,
+            };
+          } else if (name === 'check_calendar_availability') {
+            const validated = checkCalendarArgsSchema.parse(args);
+            const calendarResult = handleCalendarCheck(validated);
+
+            // Feed calendar result back into conversation
+            messages.push({
+              role: 'tool',
+              content: calendarResult,
+            });
+
+            // Continue loop; model will generate a follow-up response
+          } else {
+            log.warn('Unknown tool call', { tool: name });
+          }
+        } catch (validationError) {
+          const errorMsg =
+            validationError instanceof Error
+              ? validationError.message
+              : String(validationError);
+          log.error('Tool call argument validation failed', {
+            tool: name,
+            error: errorMsg,
+            args: JSON.stringify(args),
+          });
+        }
+      }
+    } else if (response.message.content) {
+      // Model returned text without tool calls.
+      // This is unexpected but handle gracefully: treat as a direct response.
+      log.warn(
+        'Model returned text without tool call; wrapping as response',
+        { contentLength: response.message.content.length },
+      );
+
+      const footer = buildFooter(config);
+      const fullBody = response.message.content + '\n\n---\n' + footer;
+      logResponse(emailDbId, fullBody);
+      incrementRateLimit(senderAddress);
+      updateEmailAction(emailDbId, 'responded');
+
+      finalResult = {
+        action: 'responded',
+        emailId: email.messageId,
+        responseBody: fullBody,
+        durationMs: Date.now() - startTime,
+      };
+    } else {
+      log.error('Empty response from model', { iteration });
+      updateEmailAction(emailDbId, 'error');
+      finalResult = {
+        action: 'error',
+        emailId: email.messageId,
+        error: 'Empty response from model',
+        durationMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  // If we exhausted iterations without a final result (calendar loop didn't converge)
+  if (!finalResult) {
+    log.error('Max tool iterations reached without resolution');
+    updateEmailAction(emailDbId, 'error');
+    return {
+      action: 'error',
+      emailId: email.messageId,
+      error: `Max tool iterations (${MAX_TOOL_ITERATIONS}) reached without resolution`,
+      durationMs: Date.now() - startTime,
+    };
+  }
+
+  log.info('Email processing complete', {
+    action: finalResult.action,
+    durationMs: finalResult.durationMs,
+  });
+
+  return finalResult;
+}

@@ -1,0 +1,91 @@
+# PAAIR Configuration
+# Version: 1.0
+
+# ─── Model Configuration ───
+model:
+  name: "qwen3.5:9b-q5_K_M"
+  endpoint: "http://localhost:11434"
+  # Alternative models (uncomment to switch):
+  # name: "llama3.3:8b-instruct-q5_K_M"
+  # name: "mistral-small:7b-q5_K_M"
+  # name: "phi4-mini:3.8b-q5_K_M"
+  temperature: 0.3
+  max_tokens: 2048
+  # Context window for email + system prompt + tools
+  context_window: 32768
+
+# ─── Email Configuration ───
+email:
+  paair_address: "p.a.a.i.r@melarxe.resend.app"
+  # Ricardo's institutional email (injected as CC on all outbound)
+  ricardo_email: "${RICARDO_EMAIL}"
+  # Resend API key (from environment variable)
+  resend_api_key: "${RESEND_API_KEY}"
+
+# ─── Calendar Configuration ───
+calendar:
+  provider: "microsoft_graph"
+  # Azure AD app registration
+  tenant_id: "${AZURE_TENANT_ID}"
+  client_id: "${AZURE_CLIENT_ID}"
+  client_secret: "${AZURE_CLIENT_SECRET}"
+  # Scope: read-only free/busy
+  scopes:
+    - "Calendars.Read"
+  # Default meeting duration in minutes
+  default_meeting_duration: 60
+  # Working hours for meeting proposals (UK time)
+  working_hours:
+    start: "09:00"
+    end: "17:00"
+    timezone: "Europe/London"
+  # Days to look ahead when no date specified
+  lookahead_days: 10
+
+# ─── Notification Configuration ───
+notifications:
+  # Primary: Telegram
+  telegram:
+    enabled: true
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    chat_id: "${TELEGRAM_CHAT_ID}"
+  # Secondary: Email digest
+  email_digest:
+    enabled: true
+    recipient: "${RICARDO_PERSONAL_EMAIL}"
+    digest_time: "18:00"
+    timezone: "Europe/London"
+
+# ─── Safety and Rate Limiting ───
+safety:
+  # Maximum autonomous responses per day (total)
+  max_responses_per_day: 20
+  # Maximum responses to a single sender per day
+  max_per_sender_per_day: 5
+  # Domain allowlist mode: "allow" (only listed domains) or "warn" (process all, flag unknown)
+  domain_mode: "warn"
+
+# ─── Absence Configuration ───
+absence:
+  return_date: "2026-04-15"
+  fallback_contact_name: "${FALLBACK_CONTACT_NAME}"
+  fallback_contact_email: "${FALLBACK_CONTACT_EMAIL}"
+  ricardo_surname: "${RICARDO_SURNAME}"
+
+# ─── Webhook Configuration ───
+webhook:
+  # Cloudflare Tunnel or ngrok URL (set after tunnel is established)
+  external_url: "${WEBHOOK_EXTERNAL_URL}"
+  # n8n webhook path
+  path: "/webhook/paair-inbound"
+  # Secret for webhook validation
+  secret: "${WEBHOOK_SECRET}"
+
+# ─── Logging ───
+logging:
+  # SQLite database path
+  database: "./logs/paair.db"
+  # Log level: debug, info, warn, error
+  level: "info"
+  # Whether to log full email bodies (privacy consideration)
+  log_email_bodies: false
