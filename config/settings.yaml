@@ -16,7 +16,7 @@ model:
 
 # ─── Email Configuration ───
 email:
-  paair_address: "p.a.a.i.r@melarxe.resend.app"
+  paair_address: "assistant@paair.ricardotwumasi.com"
   # Ricardo's institutional email (injected as CC on all outbound)
   ricardo_email: "${RICARDO_EMAIL}"
   # Resend API key (from environment variable)
