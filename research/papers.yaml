@@ -1,7 +1,6 @@
 # PAAIR Research Paper Index
 # This file provides PAAIR with knowledge of Ricardo's publications.
 # Add new papers by following the format below.
-# Fields marked [FILL IN] need your input; everything else is pre-populated.
 
 profile:
   name: "Dr Ricardo Twumasi"
@@ -18,18 +17,34 @@ profile:
   links:
     google_scholar: "https://scholar.google.com/citations?user=NjmFLKUAAAAJ"
     orcid: "https://orcid.org/0000-0002-0194-7250"
-    institutional: "https://www.kcl.ac.uk/people/ricardo-twumasi"
+    institutional_public: "https://www.kcl.ac.uk/people/ricardo-twumasi"
+    institutional_research: "https://kclpure.kcl.ac.uk/portal/en/persons/ricardo.twumasi/"
 
 papers:
+
+  - title: "Artificial intelligence-associated delusions and large language models: risks, mechanisms of delusion co-creation, and safeguarding strategies"
+    authors: "Morrin H, Nicholls L, Levin M, Yiend J, Iyengar U, DelGuidice F, Bhattacharya S, Tognin S, MacCabe J, Twumasi R, Alderson-Day B, Pollak TA"
+    year: 2026
+    journal: "The Lancet Psychiatry"
+    topics: ["AI", "LLM", "psychosis", "delusions", "safeguarding", "large language models", "epistemic security"]
+    abstract: "Large language models (LLMs) are poised to become a ubiquitous feature of everyday life, mediating communication, decision making, and information curation across nearly every domain. Within psychiatry and psychology, the attention has largely been on bespoke therapeutic applications, sometimes narrowly focused and often diagnostically siloed, rather than on the broader reality that individuals with mental illness will increasingly engage in agential interactions with artificial intelligence (AI) systems. Although the capacity of these systems to model therapeutic dialogue, provide companionship at any hour of the day, and assist with cognitive support has sparked understandable enthusiasm, these same systems might contribute to the onset or exacerbation of psychotic symptoms. Emerging evidence indicates that agential AI might validate or amplify delusional or grandiose content, particularly in users already vulnerable to psychosis, although it is not clear whether these interactions can result in the emergence of de novo psychosis in the absence of pre-existing vulnerability. Some individuals might benefit from AI interactions, for example, where the AI agent functions as a benign and predictable conversational anchor, but there is a growing concern that these agents could reinforce epistemic instability and blur reality boundaries. In this Personal View, we outline the emerging risks, possible mechanisms of delusion co-creation, and safeguarding strategies for agential AI for people with psychotic disorders. We propose a framework of AI-informed care, involving personalised instruction protocols, reflective check-ins, digital advance statements, and escalation safeguards to support epistemic security in vulnerable users. These tools reframe the AI agent as an epistemic ally (as opposed to a therapist or a friend), which functions as a partner in relapse prevention and cognitive containment. Given the rapid adoption of LLMs across all domains of digital life, these protocols must be urgently co-designed with service users and clinicians and tested in clinical trials."
+    key_findings:
+      - "[FILL IN]"
+    doi: "https://doi.org/10.1016/S2215-0366(25)00396-7"
+    kcl_public_url: "[none yet, embargoed]"
+
   - title: "A systematic review and meta-analysis of employer discrimination toward people living with psychosis"
-    authors: "Twumasi R, et al."
+    authors: "Crestois, N. Kempton, M., & Twumasi R."
     year: 2025
     journal: "Schizophrenia Research"
     topics: ["psychosis", "discrimination", "employment", "employer attitudes", "meta-analysis", "systematic review"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "Background: People living with psychosis face significant discrimination in the workplace, which can have devastating consequences for their financial security, social inclusion, and mental health. However, the full extent of this discrimination remains unclear. Aims: To systematically review and meta-analyse the evidence on employer discrimination toward people living with psychosis. Method: We searched multiple databases for studies reporting on employer discrimination against people living with psychosis. We extracted data on study characteristics, discrimination measures, and effect sizes. We used random-effects meta-analysis to calculate pooled effect sizes and heterogeneity. We also conducted subgroup analyses to explore potential sources of heterogeneity. Results: We identified 23 studies reporting on employer discrimination against people living with psychosis. The pooled effect size for discrimination was medium to large (g = 0.65, 95% CI [0.52, 0.78]), with substantial heterogeneity (I² = 85%). Discrimination was more pronounced in hiring decisions (g = 0.78, 95% CI [0.60, 0.96]) than in promotion decisions (g = 0.52, 95% CI [0.35, 0.69]). Discrimination was also more pronounced in studies using vignette-based designs (g = 0.82, 95% CI [0.64, 1.00]) than in studies using real-world employment records (g = 0.48, 95% CI [0.31, 0.65]). Conclusion: Employer discrimination against people living with psychosis is a significant and pervasive problem. The findings highlight the urgent need for interventions to reduce discrimination and promote employment opportunities for this population."
     key_findings:
       - "Statistically significant discrimination with medium to large pooled effect size"
-      - "[FILL IN - add more key findings]"
+      - "Discrimination was more pronounced in hiring decisions than in promotion decisions"
+      - "Discrimination was more pronounced in studies using vignette-based designs than in studies using real-world employment records"
+    doi: "https://doi.org/10.1016/j.schres.2025.01.006"
+    kcl_public_url: "https://kclpure.kcl.ac.uk/ws/portalfiles/portal/327063599/Crestois_et_al_2025_Open_Access.pdf"
 
   - title: "Advancing virtual and hybrid team well-being through a job demand-resources lens"
     authors: "Coulston C, Shergill S, Twumasi R, Duncan M"
@@ -77,7 +92,7 @@ papers:
     abstract: "[FILL IN - paste abstract here]"
     key_findings:
       - "[FILL IN]"
-    public_url: "https://scholarworks.gvsu.edu/ought/vol6/iss1/9/"
+    doi: "https://doi.org/10.9707/2833-1508.1198"
 
   - title: "Walking Works Wonders: a tailored workplace intervention evaluated over 24 months"
     authors: "Twumasi R, et al."

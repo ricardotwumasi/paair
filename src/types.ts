@@ -259,6 +259,7 @@ export interface ResearchPaper {
   abstract: string;
   key_findings?: string[];
   public_url?: string;
+  kcl_public_url?: string;
 }
 
 export interface ResearchProfile {

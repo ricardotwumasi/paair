@@ -160,7 +160,8 @@ export function formatResearchContext(
       ];
 
       if (p.doi) lines.push(`<doi>${p.doi}</doi>`);
-      if (p.public_url) lines.push(`<url>${p.public_url}</url>`);
+      const url = p.public_url || p.kcl_public_url;
+      if (url && !url.includes('[none')) lines.push(`<url>${url}</url>`);
 
       if (p.abstract && !p.abstract.includes('[FILL IN')) {
         lines.push(`<abstract>${p.abstract}</abstract>`);
