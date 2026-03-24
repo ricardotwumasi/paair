@@ -408,25 +408,50 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
       }
     } else if (response.message.content) {
       // Model returned text without tool calls.
-      // This is unexpected but handle gracefully: treat as a direct response.
+      // This is common with some models; send the response via Resend directly.
       log.warn(
-        'Model returned text without tool call; wrapping as response',
+        'Model returned text without tool call; sending as direct response',
         { contentLength: response.message.content.length },
       );
 
-      const footer = buildFooter(config);
       const cleanContent = stripModelFooter(response.message.content);
-      const fullBody = cleanContent + '\n\n---\n' + footer;
-      logResponse(emailDbId, fullBody);
-      incrementRateLimit(senderAddress);
-      updateEmailAction(emailDbId, 'responded');
 
-      finalResult = {
-        action: 'responded',
-        emailId: email.messageId,
-        responseBody: fullBody,
-        durationMs: Date.now() - startTime,
-      };
+      try {
+        const responseBody = await handleSendEmail(
+          {
+            to: senderAddress,
+            subject: `Re: ${email.subject}`,
+            body: cleanContent,
+            in_reply_to: email.messageId,
+          },
+          emailDbId,
+        );
+        incrementRateLimit(senderAddress);
+        updateEmailAction(emailDbId, 'responded');
+
+        finalResult = {
+          action: 'responded',
+          emailId: email.messageId,
+          responseBody,
+          durationMs: Date.now() - startTime,
+        };
+      } catch (sendError) {
+        const sendErrorMsg = sendError instanceof Error ? sendError.message : String(sendError);
+        log.error('Failed to send direct response', { error: sendErrorMsg });
+        // Fall back to logging only
+        const footer = buildFooter(config);
+        const fullBody = cleanContent + '\n\n---\n' + footer;
+        logResponse(emailDbId, fullBody);
+        updateEmailAction(emailDbId, 'error');
+
+        finalResult = {
+          action: 'error',
+          emailId: email.messageId,
+          responseBody: fullBody,
+          error: sendErrorMsg,
+          durationMs: Date.now() - startTime,
+        };
+      }
     } else {
       log.error('Empty response from model', { iteration });
       updateEmailAction(emailDbId, 'error');
