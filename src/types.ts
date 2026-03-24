@@ -227,6 +227,12 @@ export interface LoggingConfig {
   log_email_bodies: boolean;
 }
 
+export interface ResearchConfig {
+  papers_path: string;
+  max_context_papers: number;
+  min_relevance_score: number;
+}
+
 export interface AppConfig {
   model: ModelConfig;
   email: EmailConfig;
@@ -236,8 +242,37 @@ export interface AppConfig {
   absence: AbsenceConfig;
   webhook: WebhookConfig;
   logging: LoggingConfig;
+  research: ResearchConfig;
   trustedDomains: string[];
   blockedDomains: string[];
+}
+
+// ─── Research Context Types ───
+
+export interface ResearchPaper {
+  title: string;
+  authors: string;
+  year: number;
+  journal: string;
+  doi?: string;
+  topics: string[];
+  abstract: string;
+  key_findings?: string[];
+  public_url?: string;
+}
+
+export interface ResearchProfile {
+  name: string;
+  title: string;
+  institution: string;
+  department: string;
+  research_areas: string[];
+  links: { google_scholar?: string; orcid?: string; institutional?: string };
+}
+
+export interface ResearchIndex {
+  profile: ResearchProfile;
+  papers: ResearchPaper[];
 }
 
 // ─── Telegram API Types ───

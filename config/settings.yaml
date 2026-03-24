@@ -69,6 +69,15 @@ webhook:
   # Secret for webhook validation
   secret: "${WEBHOOK_SECRET}"
 
+# ─── Research Context ───
+research:
+  # Path to paper metadata index
+  papers_path: "./research/papers.yaml"
+  # Maximum papers to inject into LLM context per email
+  max_context_papers: 8
+  # Minimum keyword relevance score to include a paper
+  min_relevance_score: 1
+
 # ─── Logging ───
 logging:
   # SQLite database path

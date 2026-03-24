@@ -1,0 +1,111 @@
+# PAAIR Research Paper Index
+# This file provides PAAIR with knowledge of Ricardo's publications.
+# Add new papers by following the format below.
+# Fields marked [FILL IN] need your input; everything else is pre-populated.
+
+profile:
+  name: "Dr Ricardo Twumasi"
+  title: "Lecturer in Psychosis Studies"
+  institution: "King's College London"
+  department: "Department of Psychosis Studies, Institute of Psychiatry, Psychology and Neuroscience (IoPPN)"
+  research_areas:
+    - "Applied machine learning in psychosis care (computational psychiatry, predictive modelling, digital phenotyping)"
+    - "Evidence synthesis in severe mental illness (meta-analysis, systematic reviews, implementation science)"
+    - "Workplace discrimination and equality (with focus on mental health conditions)"
+    - "Occupational health psychology (burnout, resilience, work stress)"
+    - "Organisational change and health promotion"
+    - "Neurodiversity in the workplace"
+  links:
+    google_scholar: "https://scholar.google.com/citations?user=NjmFLKUAAAAJ"
+    orcid: "https://orcid.org/0000-0002-0194-7250"
+    institutional: "https://www.kcl.ac.uk/people/ricardo-twumasi"
+
+papers:
+  - title: "A systematic review and meta-analysis of employer discrimination toward people living with psychosis"
+    authors: "Twumasi R, et al."
+    year: 2025
+    journal: "Schizophrenia Research"
+    topics: ["psychosis", "discrimination", "employment", "employer attitudes", "meta-analysis", "systematic review"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "Statistically significant discrimination with medium to large pooled effect size"
+      - "[FILL IN - add more key findings]"
+
+  - title: "Advancing virtual and hybrid team well-being through a job demand-resources lens"
+    authors: "Coulston C, Shergill S, Twumasi R, Duncan M"
+    year: 2025
+    journal: "International Journal of Qualitative Studies on Health and Well-being"
+    topics: ["virtual teams", "hybrid work", "well-being", "job demands", "job resources", "qualitative"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+
+  - title: "An accessible, timely method for identifying medications for repurposing: hypothesis generating, testing and validation"
+    authors: "Twumasi R, et al."
+    year: 2025
+    journal: "BMC Digital Health"
+    topics: ["drug repurposing", "NLP", "Word2Vec", "psychosis", "pharmacoepidemiology", "machine learning"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "Used natural language processing (Word2Vec) to identify candidate medications for repurposing"
+      - "Focused on treatments for psychotic disorders"
+      - "[FILL IN]"
+
+  - title: "Core beliefs in psychosis: A systematic review and meta-analysis"
+    authors: "Jorovat A, Mechelli A, Georgiades A, Twumasi R"
+    year: 2025
+    journal: "Schizophrenia"
+    topics: ["psychosis", "core beliefs", "meta-analysis", "systematic review", "cognitive"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+
+  - title: "Biomarker discovery using machine learning in the psychosis spectrum"
+    authors: "Twumasi R, et al."
+    year: 2024
+    journal: "[FILL IN journal name]"
+    topics: ["biomarkers", "machine learning", "psychosis", "computational psychiatry", "predictive modelling"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+
+  - title: "From Margins to Mainstream: Embracing Neurodiverse Needs for an Inclusive Workplace"
+    authors: "Twumasi R, Burton L"
+    year: 2024
+    journal: "OUGHT: The Journal of Autistic Culture"
+    topics: ["neurodiversity", "workplace", "inclusion", "autism", "organisational psychology"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+    public_url: "https://scholarworks.gvsu.edu/ought/vol6/iss1/9/"
+
+  - title: "Walking Works Wonders: a tailored workplace intervention evaluated over 24 months"
+    authors: "Twumasi R, et al."
+    year: 2018
+    journal: "Ergonomics"
+    topics: ["workplace health", "walking", "intervention", "health promotion", "occupational health"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+
+  - title: "Burnout among practicing physician assistants/associates: a systematic review"
+    authors: "Twumasi R, et al."
+    year: 2026
+    journal: "[FILL IN journal name]"
+    topics: ["burnout", "physician assistants", "systematic review", "healthcare workers", "occupational health"]
+    abstract: "[FILL IN - paste abstract here]"
+    key_findings:
+      - "[FILL IN]"
+
+# ─── Add more papers below ───
+# Copy the template:
+#  - title: "Paper title"
+#    authors: "Author1, Author2, Twumasi R"
+#    year: 2025
+#    journal: "Journal Name"
+#    topics: ["topic1", "topic2"]
+#    abstract: "The abstract text..."
+#    key_findings:
+#      - "Finding 1"
+#      - "Finding 2"
+#    public_url: "https://doi.org/..."

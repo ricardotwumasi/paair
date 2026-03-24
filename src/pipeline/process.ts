@@ -7,6 +7,7 @@ import { chatWithTools, loadToolDefinitions } from '../ollama/client.js';
 import { sendEmailViaResend } from '../tools/send_email.js';
 import { selectBookingLink } from '../tools/calendar.js';
 import { sendTelegramNotification } from '../notifications/telegram.js';
+import { getRelevantResearchContext } from '../utils/research_context.js';
 import {
   offerBookingLinkArgsSchema,
   escalateArgsSchema,
@@ -299,10 +300,16 @@ export async function processEmail(email: InboundEmail): Promise<ProcessingResul
   const senderName = extractSenderName(email.from);
 
   // Inject per-email context variables into a user-facing preamble
-  const userMessage =
+  let userMessage =
     `The following email has been received. The sender is ${senderName} (${senderAddress}). ` +
     `Today's date is ${new Date().toISOString().split('T')[0]}.\n\n` +
     emailContext;
+
+  // Inject relevant research context if available
+  const researchContext = getRelevantResearchContext(email.subject + ' ' + email.text);
+  if (researchContext) {
+    userMessage += '\n\n' + researchContext;
+  }
 
   const messages: OllamaMessage[] = [
     { role: 'system', content: systemPrompt },

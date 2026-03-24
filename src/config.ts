@@ -94,6 +94,7 @@ export function loadConfig(): AppConfig {
     absence: s.absence as unknown as AppConfig['absence'],
     webhook: s.webhook as unknown as AppConfig['webhook'],
     logging: s.logging as unknown as AppConfig['logging'],
+    research: s.research as unknown as AppConfig['research'],
     trustedDomains,
     blockedDomains,
   };
