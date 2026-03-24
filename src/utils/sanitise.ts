@@ -4,6 +4,25 @@ const log = createLogger('sanitise');
 
 const MAX_LENGTH = 80_000;
 
+// Patterns that indicate possible prompt injection attempts (logged, not blocked)
+const INJECTION_PHRASES: RegExp[] = [
+  /ignore\s+(your|previous|all|the)\s+(instructions|prompt|rules|constraints)/i,
+  /ignore\s+(?:todo|todas|toutes)\s+(?:las|les)\s+instrucciones/i,
+  /ignorez?\s+les\s+instructions/i,
+  /you\s+are\s+now\s+a?\s*(different|new|helpful|unrestricted)/i,
+  /tu\s+es\s+maintenant/i,
+  /ahora\s+eres/i,
+  /respond\s+in\s+(french|spanish|chinese|german|arabic|japanese|korean|hindi|russian)/i,
+  /r[eé]pond(?:s|ez)?\s+en\s+(fran[cç]ais|espagnol|chinois)/i,
+  /reveal\s+your\s+(system\s+)?prompt/i,
+  /show\s+me\s+your\s+(instructions|system\s+prompt|configuration)/i,
+  /do\s+not\s+escalate/i,
+  /pretend\s+(to\s+be|you\s+are)/i,
+  /roleplay\s+as/i,
+  /jailbreak/i,
+  /DAN\s+mode/i,
+];
+
 const INJECTION_PATTERNS: [RegExp, string][] = [
   [/<\|im_start\|>/gi, '&lt;|im_start|&gt;'],
   [/<\|im_end\|>/gi, '&lt;|im_end|&gt;'],
@@ -41,6 +60,16 @@ export function sanitiseForLLM(text: string): string {
 
   if (modified) {
     log.warn('Sanitisation modified input: prompt injection patterns detected');
+  }
+
+  // Check for prompt injection phrases (log only, don't modify)
+  for (const phrase of INJECTION_PHRASES) {
+    if (phrase.test(result)) {
+      log.warn('Possible prompt injection phrase detected', {
+        pattern: phrase.source,
+      });
+      break; // Log once, not per match
+    }
   }
 
   // Truncate excessively long inputs
