@@ -138,18 +138,57 @@ function updateEmailAction(emailDbId: number, action: string): void {
 // ─── Tool Handlers ───
 
 function stripModelFooter(body: string): string {
-  // Models sometimes include a footer despite being told not to.
-  // Remove anything after a "---" line that mentions "PAAIR" or "AI assistant".
-  const lines = body.split('\n');
+  let lines = body.split('\n');
+
+  // Strip footer blocks (after "---" that mention PAAIR/AI assistant)
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].trim() === '---' && i + 1 < lines.length) {
       const rest = lines.slice(i + 1).join('\n').toLowerCase();
       if (rest.includes('paair') || rest.includes('ai assistant') || rest.includes('locally hosted')) {
-        return lines.slice(0, i).join('\n').trimEnd();
+        lines = lines.slice(0, i);
+        break;
       }
     }
   }
-  return body;
+
+  // Strip signature blocks: look for lines matching a title/institution pattern
+  // e.g. "**Ricardo Twumasi**", "Lecturer in Psychosis", "King's College London"
+  const sigPatterns = [
+    /^\*{0,2}(dr\s+)?ricardo\s+twumasi\*{0,2}$/i,
+    /^(lecturer|professor|reader|senior\s+lecturer)\s+in\s+/i,
+    /^department\s+of\s+/i,
+    /^(institute|faculty)\s+of\s+/i,
+    /^king'?s\s+college\s+london/i,
+    /^email:\s+/i,
+    /^website:\s+/i,
+    /^tel(ephone)?:\s+/i,
+    /^return\s+from\s+absence/i,
+  ];
+
+  let sigStart = -1;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const trimmed = lines[i].trim();
+    if (!trimmed) continue; // skip blank lines at end
+    const isSigLine = sigPatterns.some((p) => p.test(trimmed));
+    if (isSigLine) {
+      sigStart = i;
+    } else {
+      break; // stop scanning once we hit a non-signature line
+    }
+  }
+
+  if (sigStart >= 0) {
+    // Also strip any "---" separator line immediately before the signature
+    if (sigStart > 0 && lines[sigStart - 1].trim() === '---') {
+      sigStart--;
+    }
+    lines = lines.slice(0, sigStart);
+  }
+
+  // Strip literal [FOOTER] marker if the model included it
+  let result = lines.join('\n').trimEnd();
+  result = result.replace(/\n?\[FOOTER\]\s*$/i, '').trimEnd();
+  return result;
 }
 
 async function handleSendEmail(args: SendEmailArgs, emailDbId: number): Promise<string> {
