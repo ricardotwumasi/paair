@@ -64,11 +64,13 @@ async function transformResendPayload(
 ): Promise<InboundEmail> {
   const data = (payload.data ?? payload) as Record<string, unknown>;
 
-  // Fetch the email body using the email_id
-  const emailId = data.email_id as string;
-  let text = '';
-  if (emailId) {
-    text = await fetchEmailBody(emailId, config);
+  // Use inline text if provided (for direct/test payloads), otherwise fetch from Resend
+  let text = (data.text as string) || '';
+  if (!text) {
+    const emailId = data.email_id as string;
+    if (emailId) {
+      text = await fetchEmailBody(emailId, config);
+    }
   }
 
   const transformed = {
