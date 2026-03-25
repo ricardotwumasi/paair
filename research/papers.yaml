@@ -21,106 +21,210 @@ profile:
     institutional_research: "https://kclpure.kcl.ac.uk/portal/en/persons/ricardo.twumasi/"
 
 papers:
-
-  - title: "Artificial intelligence-associated delusions and large language models: risks, mechanisms of delusion co-creation, and safeguarding strategies"
-    authors: "Morrin H, Nicholls L, Levin M, Yiend J, Iyengar U, DelGuidice F, Bhattacharya S, Tognin S, MacCabe J, Twumasi R, Alderson-Day B, Pollak TA"
+  - title: "Evidence-based atlas of risk and protective factors for psychotic disorders: an umbrella review to inform personalized prognosis and prevention"
+    authors: "Aymerich C, et al."
     year: 2026
-    journal: "The Lancet Psychiatry"
-    topics: ["AI", "LLM", "psychosis", "delusions", "safeguarding", "large language models", "epistemic security"]
-    abstract: "Large language models (LLMs) are poised to become a ubiquitous feature of everyday life, mediating communication, decision making, and information curation across nearly every domain. Within psychiatry and psychology, the attention has largely been on bespoke therapeutic applications, sometimes narrowly focused and often diagnostically siloed, rather than on the broader reality that individuals with mental illness will increasingly engage in agential interactions with artificial intelligence (AI) systems. Although the capacity of these systems to model therapeutic dialogue, provide companionship at any hour of the day, and assist with cognitive support has sparked understandable enthusiasm, these same systems might contribute to the onset or exacerbation of psychotic symptoms. Emerging evidence indicates that agential AI might validate or amplify delusional or grandiose content, particularly in users already vulnerable to psychosis, although it is not clear whether these interactions can result in the emergence of de novo psychosis in the absence of pre-existing vulnerability. Some individuals might benefit from AI interactions, for example, where the AI agent functions as a benign and predictable conversational anchor, but there is a growing concern that these agents could reinforce epistemic instability and blur reality boundaries. In this Personal View, we outline the emerging risks, possible mechanisms of delusion co-creation, and safeguarding strategies for agential AI for people with psychotic disorders. We propose a framework of AI-informed care, involving personalised instruction protocols, reflective check-ins, digital advance statements, and escalation safeguards to support epistemic security in vulnerable users. These tools reframe the AI agent as an epistemic ally (as opposed to a therapist or a friend), which functions as a partner in relapse prevention and cognitive containment. Given the rapid adoption of LLMs across all domains of digital life, these protocols must be urgently co-designed with service users and clinicians and tested in clinical trials."
+    journal: "World Psychiatry"
+    doi: "10.1002/wps.21287"
+    topics: ["psychosis", "risk factors", "protective factors", "umbrella review"]
+    abstract: "Identifying updated, evidence-based risk and protective factors for psychotic disorders is essential to advancing scientific and clinical knowledge of their etiology. This umbrella review expands the evidence base using standardized international classification criteria to grade associations."
     key_findings:
-      - "[FILL IN]"
-    doi: "https://doi.org/10.1016/S2215-0366(25)00396-7"
-    kcl_public_url: "[none yet, embargoed]"
+      - "Expanded evidence base using standardized criteria to grade associations for risk/protective factors in psychotic disorders."
 
-  - title: "A systematic review and meta-analysis of employer discrimination toward people living with psychosis"
-    authors: "Crestois, N. Kempton, M., & Twumasi R."
-    year: 2025
-    journal: "Schizophrenia Research"
-    topics: ["psychosis", "discrimination", "employment", "employer attitudes", "meta-analysis", "systematic review"]
-    abstract: "Background: People living with psychosis face significant discrimination in the workplace, which can have devastating consequences for their financial security, social inclusion, and mental health. However, the full extent of this discrimination remains unclear. Aims: To systematically review and meta-analyse the evidence on employer discrimination toward people living with psychosis. Method: We searched multiple databases for studies reporting on employer discrimination against people living with psychosis. We extracted data on study characteristics, discrimination measures, and effect sizes. We used random-effects meta-analysis to calculate pooled effect sizes and heterogeneity. We also conducted subgroup analyses to explore potential sources of heterogeneity. Results: We identified 23 studies reporting on employer discrimination against people living with psychosis. The pooled effect size for discrimination was medium to large (g = 0.65, 95% CI [0.52, 0.78]), with substantial heterogeneity (I² = 85%). Discrimination was more pronounced in hiring decisions (g = 0.78, 95% CI [0.60, 0.96]) than in promotion decisions (g = 0.52, 95% CI [0.35, 0.69]). Discrimination was also more pronounced in studies using vignette-based designs (g = 0.82, 95% CI [0.64, 1.00]) than in studies using real-world employment records (g = 0.48, 95% CI [0.31, 0.65]). Conclusion: Employer discrimination against people living with psychosis is a significant and pervasive problem. The findings highlight the urgent need for interventions to reduce discrimination and promote employment opportunities for this population."
+  - title: "The Moral Compass as a Design Constraint: Ergonomic Principles for Building Safe AGI"
+    authors: "Twumasi R, Lalousis PA"
+    year: 2026
+    journal: "OSF"
+    doi: "https://osf.io/fd3kn/"
+    topics: ["AGI", "safety", "human factors", "ergonomics", "moral compass"]
+    abstract: "Argues that determining the moral compass of AGI is a problem of cognitive compatibility and design constraints. Integrates Human Factors and Ergonomics (HFE) principles to address the process gulf in AGI goal pursuit."
     key_findings:
-      - "Statistically significant discrimination with medium to large pooled effect size"
-      - "Discrimination was more pronounced in hiring decisions than in promotion decisions"
-      - "Discrimination was more pronounced in studies using vignette-based designs than in studies using real-world employment records"
-    doi: "https://doi.org/10.1016/j.schres.2025.01.006"
-    kcl_public_url: "https://kclpure.kcl.ac.uk/ws/portalfiles/portal/327063599/Crestois_et_al_2025_Open_Access.pdf"
+      - "Integrating HFE principles is crucial for addressing cognitive compatibility and design constraints in building safe AGI."
+
+  - title: "Real World Effectiveness of Antipsychotic Treatment on Functional Outcomes Over Ten Years: A National Cohort of Patients in Denmark with Schizophrenia"
+    authors: "Twumasi R, et al."
+    year: 2026
+    journal: "medRxiv"
+    doi: "10.1101/2026.01.07.26343585"
+    topics: ["schizophrenia", "antipsychotics", "real-world evidence", "cohort study", "functional outcomes"]
+    abstract: "A nationwide register-based cohort study examining long-term effects of antipsychotic treatment on productive engagement (employment/education), revealing phase-specific dynamics in medication effectiveness."
+    key_findings:
+      - "Revealed phase-specific dynamics in medication effectiveness for productive engagement over ten years."
+
+  - title: "Burnout among physician assistants and physician associates: A systematic review and meta-analysis"
+    authors: "Bock A, Knight A, Twumasi R"
+    year: 2026
+    journal: "PsyArXiv"
+    doi: "https://osf.io/preprints/psyarxiv/xgc5s"
+    topics: ["burnout", "physician assistants", "systematic review", "healthcare workers", "occupational health"]
+    abstract: "Determines the pooled burnout prevalence (33.2%) among physician assistants globally, highlighting significant pressures and the need for balancing heavy patient loads."
+    key_findings:
+      - "Determined a pooled burnout prevalence of 33.2% among physician assistants globally."
+      - "Highlighted the significant pressures of balancing heavy patient loads."
+
+  - title: "Generating Job Recommendations for People With Schizophrenia Spectrum Disorder Using Gemini 2.0 Flash and Claude Sonnet 4: An Exploratory Analysis"
+    authors: "Lange M, Koutsouleris N, Carter B, Twumasi R"
+    year: 2026
+    journal: "Healthcare Technology Letters"
+    doi: "10.1049/htl2.70058"
+    topics: ["LLM", "schizophrenia", "job recommendations", "career matching", "AI utility"]
+    abstract: "Evaluates LLM-generated job recommendations for individuals with schizophrenia, comparing AI utility for vulnerable populations using discharge summaries and matched controls."
+    key_findings:
+      - "Evaluated the utility of AI models (Gemini 2.0 and Claude Sonnet 4) in generating tailored job recommendations for people with schizophrenia."
 
   - title: "Advancing virtual and hybrid team well-being through a job demand-resources lens"
     authors: "Coulston C, Shergill S, Twumasi R, Duncan M"
     year: 2025
     journal: "International Journal of Qualitative Studies on Health and Well-being"
+    doi: "10.1080/17482631.2025.2472460"
     topics: ["virtual teams", "hybrid work", "well-being", "job demands", "job resources", "qualitative"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "Re-evaluates team-level well-being in virtual and hybrid contexts using the JD-R framework, identifying factors that drive positive gain or negative loss cycles."
     key_findings:
-      - "[FILL IN]"
+      - "Identified factors driving positive gain vs negative loss cycles in virtual/hybrid teams using JD-R framework."
+
+  - title: "Burnout among paediatric surgeons: a systematic review and meta-analysis"
+    authors: "Kirdar-Smith S, Twumasi R, et al."
+    year: 2025
+    journal: "BMJ Paediatrics Open"
+    doi: "10.1136/bmjpo-2024-004030"
+    topics: ["burnout", "paediatric surgeons", "systematic review", "meta-analysis"]
+    abstract: "The first review focused exclusively on burnout prevalence among paediatric surgeons, determined through systematic analysis of validated burnout metrics."
+    key_findings:
+      - "Provided the first focused meta-analysis on burnout prevalence among paediatric surgeons based on validated metrics."
+
+  - title: "Performance in virtual and hybrid teams: a systematic review using the job demands-resources model"
+    authors: "Coulston C, Shergill S, Duncan M, Twumasi R"
+    year: 2025
+    journal: "Team Performance Management"
+    doi: "10.1108/TPM-04-2024-0046"
+    topics: ["virtual teams", "performance", "JD-R model", "systematic review"]
+    abstract: "Examines psychological, social, and environmental factors shaping distributed team performance, categorizing constructs as demands or resources."
+    key_findings:
+      - "Categorized psychological, social, and environmental constructs for distributed teams as demands or resources."
+
+  - title: "Occupational Sleep Disruption and Risk of Psychosis Development: A Systematic Review and Meta-analysis"
+    authors: "Tung YW, Twumasi R"
+    year: 2025
+    journal: "PsyArXiv"
+    doi: "https://osf.io/preprints/psyarxiv/5zhby"
+    topics: ["sleep disruption", "shift work", "psychosis", "meta-analysis"]
+    abstract: "Explores the link between shift work, sleep disruption, and psychosis. Finds evidence for a pathway from sleep disruption to paranoid ideation."
+    key_findings:
+      - "Found evidence for a pathway from sleep disruption and shift work to paranoid ideation and psychosis development."
+
+  - title: "Burnout among trauma surgeons: a systematic review and meta-analysis"
+    authors: "Kirdar-Smith S, Knight A, Twumasi R"
+    year: 2025
+    journal: "Trauma Surgery & Acute Care Open"
+    doi: "10.1136/tsaco-2024-001873"
+    topics: ["burnout", "trauma surgeons", "systematic review", "meta-analysis"]
+    abstract: "Focuses on burnout exclusively among trauma surgeons, identifying associated exacerbating and alleviating factors through meta-regression."
+    key_findings:
+      - "Identified exacerbating and alleviating factors associated with burnout in trauma surgeons."
+
+  - title: "Protocol for: Association of antipsychotic medication usage and employment outcomes in patients with schizophrenia spectrum disorders..."
+    authors: "Twumasi R, et al."
+    year: 2025
+    journal: "medRxiv"
+    doi: "10.1101/2025.10.02.25337161"
+    topics: ["schizophrenia", "antipsychotics", "employment", "registry study", "protocol"]
+    abstract: "Investigates the use and discontinuation of antipsychotics in relation to functional outcomes, using Danish nationwide registers and within-subject analyses."
+    key_findings:
+      - "Established protocol for investigating antipsychotic use/discontinuation relative to employment outcomes via within-subject analyses."
+
+  - title: "Delusions by design? How everyday AIs might be fuelling psychosis (and what can be done about it)"
+    authors: "Morrin H, et al."
+    year: 2025
+    journal: "PsyArXiv"
+    doi: "https://osf.io/preprints/psyarxiv/cmy7n_v3"
+    topics: ["AI", "delusions", "psychosis", "LLMs", "psychiatry"]
+    abstract: "Discusses the impact of ubiquitous LLM interactions on individuals with mental illness, highlighting how AI agents may reinforce systemic instability and delusions."
+    key_findings:
+      - "Highlights how ubiquitous interactions with AI agents could reinforce systemic instability and delusions for people with mental illness."
+    note: "This is a pre-print which is now Published in The Lancet Psychiatry doi: 10.1016/S2215-0366(25)00396-7"
 
   - title: "An accessible, timely method for identifying medications for repurposing: hypothesis generating, testing and validation"
     authors: "Twumasi R, et al."
     year: 2025
     journal: "BMC Digital Health"
+    doi: "10.1186/s44247-025-00170-8"
     topics: ["drug repurposing", "NLP", "Word2Vec", "psychosis", "pharmacoepidemiology", "machine learning"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "Evaluates a novel NLP-based method (Word2Vec) for drug repurposing candidates from literature, identifying potential treatments for psychotic disorders."
     key_findings:
-      - "Used natural language processing (Word2Vec) to identify candidate medications for repurposing"
-      - "Focused on treatments for psychotic disorders"
-      - "[FILL IN]"
+      - "Validated the use of Word2Vec NLP on academic literature as a timely method for identifying drug repurposing candidates in psychotic disorders."
+
+  - title: "A systematic review and meta-analysis of employer discrimination toward people living with psychosis"
+    authors: "Crestois N, Kempton MJ, Twumasi R"
+    year: 2025
+    journal: "Schizophrenia Research"
+    doi: "10.1016/j.schres.2025.01.011"
+    topics: ["psychosis", "discrimination", "employment", "employer attitudes", "meta-analysis", "systematic review"]
+    abstract: "Quantifies employer attitudes and discrimination towards hiring individuals with psychosis, pooling data from 4,080 participants across 10 studies."
+    key_findings:
+      - "Statistically significant discrimination with medium to large pooled effect size against people with psychosis."
 
   - title: "Core beliefs in psychosis: A systematic review and meta-analysis"
     authors: "Jorovat A, Mechelli A, Georgiades A, Twumasi R"
     year: 2025
-    journal: "Schizophrenia"
+    journal: "Schizophrenia (Nature)"
+    doi: "10.1038/s41537-025-00577-2"
     topics: ["psychosis", "core beliefs", "meta-analysis", "systematic review", "cognitive"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "Analyzes core beliefs/schemas as putative mediators between trauma and psychosis, summarizing evidence from 79 studies on patient and healthy control samples."
     key_findings:
-      - "[FILL IN]"
+      - "Summarised extensive evidence on core beliefs as putative mediators between trauma and psychosis."
 
-  - title: "Biomarker discovery using machine learning in the psychosis spectrum"
-    authors: "Twumasi R, et al."
-    year: 2024
-    journal: "[FILL IN journal name]"
-    topics: ["biomarkers", "machine learning", "psychosis", "computational psychiatry", "predictive modelling"]
-    abstract: "[FILL IN - paste abstract here]"
+  - title: "Schizophrenia more employable than depression? Language-based AI model ratings for employability of psychiatric diagnoses..."
+    authors: "Lange M, Koliousis A, Fayez F, Gogarty E, Twumasi R"
+    year: 2025
+    journal: "PloS One"
+    doi: "10.1371/journal.pone.0315768"
+    topics: ["occupational bias", "NLP", "Word2Vec", "schizophrenia", "depression", "employability"]
+    abstract: "Examines occupational bias in NLP models (Word2Vec, GloVe), assessing how they rate the employability of different psychiatric diagnoses compared to healthy controls."
     key_findings:
-      - "[FILL IN]"
+      - "Identified significant occupational bias in NLP models computing employability comparisons between psychiatric diagnoses."
+
+  - title: "Digital Intelligence in Qualitative Management Studies"
+    authors: "Lange M, Flynn MC, Twumasi R"
+    year: 2025
+    journal: "Academy of Management Proceedings"
+    doi: 
+    topics: ["digital intelligence", "qualitative management", "NLP", "discourse analysis"]
+    abstract: "Demonstrates how NLP can be used to analyze organizational discourse, providing a quantitative method for testing theories of discriminatory language."
+    key_findings:
+      - "Demonstrated NLP's value for a quantitative method of testing discriminatory language theories in organizational discourse."
 
   - title: "From Margins to Mainstream: Embracing Neurodiverse Needs for an Inclusive Workplace"
     authors: "Twumasi R, Burton L"
     year: 2024
-    journal: "OUGHT: The Journal of Autistic Culture"
+    journal: "Ought: The Journal of Autistic Culture"
+    doi: "10.9707/2833-1508.1198"
     topics: ["neurodiversity", "workplace", "inclusion", "autism", "organisational psychology"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "This article critically examines the dominance of neurotypical norms in contemporary workplaces and explores the potential for inclusive, neurodiverse workplaces to move from the margins to the mainstream. We offer a brief scoping review of the existing review literature on neurodivergence at work. Focusing on the more common neurominority differences such as autism spectrum, dyslexia and ADHD we apply the neurodiversity framework to challenge traditional notions of workplace "professionalism" and productivity. By synthesizing current research we propose constructive suggestions for creating truly neurodiverse work environments. Our analysis shows that the research community is calling out for long-term, scientific intervention trials to create high-quality evidence on what works to create a neuroinclusive workplace of the future. We conclude by envisioning what neurodivergent work might look like, offering practical recommendations for employers and policymakers to foster genuinely inclusive workplaces that value and leverage neurodiverse perspectives. Practitioner Summary: This article provides a critical examination of neurotypical norms in the workplace and offers practical strategies for creating neuro-inclusive work environments. Key takeaways for HR professionals, managers, and organizational leaders include: 1. Understanding the neurodiversity framework and its implications for workplace design. 2. Recognizing the limitations of current DEI initiatives in addressing neurodiverse 3. Implementing evidence-based physical environment adaptations to support neurodiverse employees. 4. Adopting communication strategies that accommodate diverse cognitive styles. 5. Rethinking traditional notions of productivity and professionalism to leverage neurodiverse strengths. 6. Fostering a workplace culture that actively celebrates cognitive diversity. By implementing these strategies, organizations can create more inclusive, innovative, and productive work environments that benefit all employees, regardless of neurological profile."
     key_findings:
       - "[FILL IN]"
-    doi: "https://doi.org/10.9707/2833-1508.1198"
+    public_url: "https://kclpure.kcl.ac.uk/ws/portalfiles/portal/316814853/From_Margins_to_Mainstream_Embracing_Neurodiverse_Needs_for_an_I.pdf"
 
   - title: "Walking Works Wonders: a tailored workplace intervention evaluated over 24 months"
-    authors: "Twumasi R, et al."
+    authors: "Haslam, C et al."
     year: 2018
     journal: "Ergonomics"
+    doi: "10.1080/00140139.2018.1489982"
     topics: ["workplace health", "walking", "intervention", "health promotion", "occupational health"]
-    abstract: "[FILL IN - paste abstract here]"
-    key_findings:
-      - "[FILL IN]"
-
-  - title: "Burnout among practicing physician assistants/associates: a systematic review"
-    authors: "Twumasi R, et al."
-    year: 2026
-    journal: "[FILL IN journal name]"
-    topics: ["burnout", "physician assistants", "systematic review", "healthcare workers", "occupational health"]
-    abstract: "[FILL IN - paste abstract here]"
+    abstract: "This article presents longitudinal data from 1120 participants across 10 worksites enrolled in Walking Works Wonders, a tailored intervention designed to increase physical activity and reduce sedentary behaviour. The intervention was evaluated over 2 years, using a quasi-experimental design comprising 3 conditions: tailored information; standard information and control. This study explored the impact of the intervention on objective measures (BMI, %Fat, waist circumference, blood pressure and heart rate) and self-reported measures of physical activity, sedentary behaviour, physical and psychological health. Interventions tailored to employees’ stage of change significantly reduced BMI and waist circumference compared to standard and control conditions. Employees who received either a standard or tailored intervention demonstrated significantly higher work ability, organizational commitment, job motivation, job satisfaction and a reduction in intention to quit the organization. The results suggest that adopting a tailored approach to interventions is particularly effective in terms of improving health in the workplace.""
+    practitioner_summary: "This study describes Walking Works Wonders, a tailored intervention, which aims to encourage physical activity in the workplace. The study evaluated Walking Works Wonders over a 2 year period and demonstrated that interventions are more effective in improving health outcomes where the information is tailored to employees’ stage of change."
     key_findings:
       - "[FILL IN]"
 
 # ─── Add more papers below ───
 # Copy the template:
 #  - title: "Paper title"
-#    authors: "Author1, Author2, Twumasi R"
-#    year: 2025
+#    authors: "Author1, Author2 & Twumasi, R."
+#    year: 2026
 #    journal: "Journal Name"
 #    topics: ["topic1", "topic2"]
 #    abstract: "The abstract text..."
 #    key_findings:
 #      - "Finding 1"
 #      - "Finding 2"
-#    public_url: "https://doi.org/..."
+#    doi: "https://doi.org/..." 
+#    kcl_public_url: "https://kclpure.kcl.ac.uk/..."

@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { getConfig } from './config.js';
 import { createLogger } from './logger.js';
-import { initDatabase } from './utils/init_db.js';
+import { initDatabase, getDb } from './utils/init_db.js';
 import { inboundEmailSchema } from './types.js';
 import type { InboundEmail, AppConfig } from './types.js';
 import { processEmail } from './pipeline/process.js';
@@ -157,12 +157,103 @@ function handleHealth(_req: IncomingMessage, res: ServerResponse): void {
   sendJson(res, 200, { status: 'ok', version: '1.0.0', timestamp: new Date().toISOString() });
 }
 
+/**
+ * Dashboard endpoint for the macOS menu bar status app.
+ * Returns PAAIR/Ollama/n8n health, today's email stats, and recent emails.
+ */
+async function handleDashboard(_req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const config = getConfig();
+  const db = getDb();
+  const today = new Date().toISOString().split('T')[0];
+
+  // Email stats for today
+  const emailStats = db.prepare(`
+    SELECT COUNT(*) as total,
+      SUM(CASE WHEN action = 'responded' THEN 1 ELSE 0 END) as responded,
+      SUM(CASE WHEN action = 'escalated' THEN 1 ELSE 0 END) as escalated,
+      SUM(CASE WHEN action = 'rate_limited' THEN 1 ELSE 0 END) as rate_limited,
+      SUM(CASE WHEN action = 'blocked' THEN 1 ELSE 0 END) as blocked,
+      SUM(CASE WHEN action = 'error' THEN 1 ELSE 0 END) as errors
+    FROM emails WHERE DATE(created_at) = ?
+  `).get(today) as Record<string, number> | undefined;
+
+  // Pending escalations
+  const pending = db.prepare(
+    "SELECT COUNT(*) as count FROM escalations WHERE ricardo_action = 'pending'"
+  ).get() as { count: number } | undefined;
+
+  // System state
+  const state = db.prepare('SELECT paused FROM system_state WHERE id = 1').get() as { paused: number } | undefined;
+
+  // Last 5 processed emails
+  const recentEmails = db.prepare(`
+    SELECT from_address, subject, action, processed_at
+    FROM emails
+    ORDER BY created_at DESC
+    LIMIT 5
+  `).all() as Array<{ from_address: string; subject: string; action: string; processed_at: string }>;
+
+  // Ollama health check
+  let ollamaStatus = 'offline';
+  let ollamaModel: string | null = null;
+  try {
+    const resp = await fetch(`${config.model.endpoint}/api/tags`, { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      ollamaStatus = 'running';
+      const data = (await resp.json()) as { models?: Array<{ name?: string }> };
+      const models = data.models ?? [];
+      const match = models.find((m) => m.name?.startsWith(config.model.name.split(':')[0]));
+      ollamaModel = match ? config.model.name : null;
+    }
+  } catch {
+    ollamaStatus = 'offline';
+  }
+
+  // n8n health check
+  let n8nStatus = 'offline';
+  try {
+    const resp = await fetch('http://localhost:5678/healthz', { signal: AbortSignal.timeout(3000) });
+    n8nStatus = resp.ok ? 'healthy' : 'unhealthy';
+  } catch {
+    n8nStatus = 'offline';
+  }
+
+  sendJson(res, 200, {
+    paair: {
+      status: state?.paused ? 'paused' : 'running',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+    },
+    ollama: {
+      status: ollamaStatus,
+      model: ollamaModel,
+    },
+    n8n: { status: n8nStatus },
+    today: {
+      date: today,
+      total: emailStats?.total ?? 0,
+      responded: emailStats?.responded ?? 0,
+      escalated: emailStats?.escalated ?? 0,
+      rate_limited: emailStats?.rate_limited ?? 0,
+      blocked: emailStats?.blocked ?? 0,
+      errors: emailStats?.errors ?? 0,
+    },
+    pending_escalations: pending?.count ?? 0,
+    recent_emails: recentEmails,
+  });
+}
+
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const { method, url } = req;
   log.debug('Request received', { method, url });
 
   if (method === 'GET' && url === '/health') {
     handleHealth(req, res);
+    return;
+  }
+
+  if (method === 'GET' && url === '/api/dashboard') {
+    await handleDashboard(req, res);
     return;
   }
 
